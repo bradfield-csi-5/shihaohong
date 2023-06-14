@@ -1,5 +1,11 @@
 #include <stdio.h>
 
+void count_blanks_tabs_newlines();
+
+int main() {
+  count_blanks_tabs_newlines();
+}
+
 void count_blanks_tabs_newlines() {
     int c, count;
     count = 0;
@@ -14,8 +20,4 @@ void count_blanks_tabs_newlines() {
             count++;
         }
     }
-}
-
-int main() {
-  count_blanks_tabs_newlines();
 }
