@@ -7,17 +7,14 @@
 // english word
 //
 // also assuming english input
-#define MAXLENGTH 50;
+#define MAXLENGTH 50
 
 void tally_word_count(int count[]);
 bool is_special_char(int c);
 
 int main() {
-    // TODO: why is this necessary?
-    // cannot use symblic constant to init array
-    const int max_length = MAXLENGTH;
     // TODO: learn why C arrays initialize to zero globally, but not locally
-    int count_arr[max_length] = {0};
+    int count_arr[MAXLENGTH] = {0};
 
     tally_word_count(count_arr);
 
@@ -29,7 +26,7 @@ int main() {
     // for histogram label, since no length 0 words)
     printf("0\n");
 
-    for (i = 1; i < max_length; i++) {
+    for (i = 1; i < MAXLENGTH; i++) {
         // print labels
         if (i % 5 == 0) {
             printf("%d", i);
