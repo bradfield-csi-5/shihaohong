@@ -1,6 +1,0 @@
-{
-    "files.associations": {
-        "*.kt": "kotlin",
-        "limits.h": "c"
-    }
-}
