@@ -3,6 +3,7 @@
 
 // had to look up the source code for limits.h
 // source code link: https://www.gnu.org/software/libc/sources.html
+// alternatively, cmd+click limits.h once C extensions installed for IDE.
 int main() {
     // char
     // %d is for signed decimal int
