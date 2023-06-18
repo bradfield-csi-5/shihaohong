@@ -13,6 +13,15 @@ int getop(char s[]);
 char buf[BUFSIZE];  // buffer for ungetch
 int bufp = 0;       // next free position in buffer
 
+/*
+12 - 334
+resulting ascii int val: 48
+resulting string: 12
+resulting ascii int val: 45
+resulting string2: -
+resulting ascii int val3: 48
+resulting string3: 334
+*/
 int main(){
     int i = 0;
     char ca[MAXLENGTH];
@@ -35,10 +44,12 @@ int main(){
 int getop(char s[])
 {
     int i;
-    char c;
+    static char c = EOF; // create new case for "null" case
 
-    while ((s[0] = c = getch()) == ' ' || c == '\t')
-        ;
+    while (c == EOF || c == ' ' || c == '\t') {
+        c = getch();
+    }
+    s[0] = c;
     s[1] = '\0';
 
     // single char operator
@@ -46,8 +57,12 @@ int getop(char s[])
         return c;
     }
 
-    if (!isdigit(c) && c != '.')
-        return c;
+    if (!isdigit(c) && c != '.') {
+        // reset c since there was no "read ahead"
+        int res = c;
+        c = EOF;
+        return res;
+    }
     i = 0;
     if (isdigit(c)) { // collect integer
         while (isdigit(s[++i] = c = getch()))
@@ -59,8 +74,6 @@ int getop(char s[])
             ;
     }
     s[i] = '\0';
-    if (c != EOF)
-        ungetch(c);
 
     return NUMBER;
 }
