@@ -16,20 +16,24 @@ int bufp = 0;       // next free position in buffer
 int main(){
     int i = 0;
     char ca[MAXLENGTH];
+    int i2 = 0;
+    char ca2[MAXLENGTH];
     // gets only one operator/number
     i = getop(ca);
-    // print the int value of the next char
-    i = printf("resulting val: %d\n", i);
-    // print the string stored
+    printf("resulting val: %d\n", i);
     printf("resulting string: %s\n", ca);
+    i2 = getop(ca2);
+    // print the int value of the next char
+    printf("resulting val2: %d\n", i2);
+    printf("resulting string2: %s\n", ca2);
 }
 
 /* getop: get next operator or numeric operand */
 int getop(char s[])
 {
-    int i, c;
+    int i;
+    static char c;
 
-    // skip whitespace
     while ((s[0] = c = getch()) == ' ' || c == '\t')
         ;
     s[1] = '\0';
@@ -39,36 +43,22 @@ int getop(char s[])
         return c;
     }
 
+    if (!isdigit(c) && c != '.')
+        return c;
     i = 0;
-    // '-' is a special case since it can signify negative number
-    if (c == '-') {
-        // need to determine if neg number or subtraction
-        if ((c = getch()) == ' ' || c == '\t' || c == EOF || c == '\n') {
-            // subtraction
-            ungetch(c);
-            return '-';
-        } else // neg number
-            ungetch(c);
-    }
-
-    if (!isdigit(c) && c != '.' && c != '-') {
-        // variable or command so get entire thing
-        while ((s[++i] = c = getch()) != ' ' && c != EOF && c != '\n' && c != '\t')
-            ;
-        s[i] = '\0';
-        ungetch(c);
-        return COMMAND;
-    }
-
-    if (isdigit(c))     // collect integer part
+    if (isdigit(c)) { // collect integer
         while (isdigit(s[++i] = c = getch()))
             ;
-    if (c == '.') {     // collect fraction part
+    }
+
+    if (c == '.') { // collect fraction
         while (isdigit(s[++i] = c = getch()))
             ;
     }
     s[i] = '\0';
-    ungetch(c);
+    if (c != EOF)
+        ungetch(c);
+
     return NUMBER;
 }
 
