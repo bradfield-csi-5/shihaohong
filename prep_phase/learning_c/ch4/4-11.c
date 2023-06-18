@@ -54,7 +54,10 @@ int getop(char s[])
 
     // single char operator
     if (c == '%' || c == '+' || c == '/' || c == '\n' || c == '*') {
-        return c;
+        // reset c since there was no "read ahead"
+        int res = c;
+        c = EOF;
+        return res;
     }
 
     if (!isdigit(c) && c != '.') {
