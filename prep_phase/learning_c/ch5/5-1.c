@@ -10,11 +10,25 @@ int getch(void);
 void ungetch(int);
 int getint(int *pn);
 
+/*
+output:
+a val before: -1
++asdf1234-
+a val after: -1
+check buf: a+ // expected, because buffer should be in reverse order.
+check next input val: s
+*/
 int main() {
     int a = -1;
     printf("a val before: %d\n", a);
     getint(&a);
+    // check that nothing was pushed to [a].
     printf("a val after: %d\n", a);
+    // check buffer value is correct
+    printf("check buf: %s\n", buf);
+    // verify value of next char in input stream
+    int c = getchar();
+    printf("check next input val: %c\n", c);
 }
 
 int getint(int *pn) {
@@ -31,6 +45,13 @@ int getint(int *pn) {
     sign = (c == '-') ? -1 : 1;
     if (c == '+' || c == '-')
         c = getch();
+
+    if (!isdigit(c)) {
+        ungetch(c);
+        sign == 1 ? ungetch('+') : ungetch('-');
+        return 0;
+    }
+
     for (*pn = 0; isdigit(c); c = getch())
         *pn = 10 * *pn + (c- '0');
     *pn *= sign;
