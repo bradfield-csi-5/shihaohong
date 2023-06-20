@@ -35,13 +35,14 @@ int strlen2(char* s) {
 }
 
 int strend(char* s, char* t) {
-    // handle edge case where length t > length s
-    if (strlen2(t) > strlen2(s))
-        return 0;
-
     // get length of s
     int ls = strlen2(s);
     int lt = strlen2(t);
+
+    // handle edge case where length t > length s
+    if (lt > ls) {
+        return 0;
+    }
 
     // get to the end of s and subtract t
     s = s + ls - lt;
