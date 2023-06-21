@@ -21,9 +21,39 @@ int main(int argc, char *argv[]) {
     DIR *dp;
     struct dirent *ep;
 
-    // hard-code for first argument, ignore options for now
-    // TODO: implement taking options
-    char* path = argv[1];
+    char* path;
+    char* last_arg = argv[argc - 1];
+
+    int a_option = 0;
+
+    // look for and process options first
+    // once non-option found, assume it's filepaths
+    // does not process "--" for now
+    int i;
+    for (i = 1; i < argc; i++) {
+        char* arg = argv[i];
+        char first_char = arg[0];
+        if (first_char == '-') {
+            // process options
+            if (strstr(arg, "a")) {
+                a_option = 1;
+            }
+        } else {
+            break;
+        }
+    }
+
+    // for now, assume only one file processed
+    // TODO: handle multiple file directory inputs in argument
+    // ie. ls ./ ../ (should list the contents of both directories,
+    // separated by \n\n). For now, assume last arg is the dir to be listed
+    if (argc < 2 || i == argc) {
+        path = "./";
+    } else {
+        path = last_arg;
+    }
+
+    // if somehow NULL, default to pwd
     if (path == NULL) {
         path = "./";
     }
@@ -33,12 +63,14 @@ int main(int argc, char *argv[]) {
     if (dp != NULL) {
         // reads directory stream until NULL when error/end
         while ((ep = readdir(dp))) {
-            if (ep->d_name[0] != '.') {
-                if (ep->d_type == DT_DIR || ep->d_type == DT_REG) {
-                    dir[i_d] = *ep;
-                    i_d++;
-                } // TODO: do i need to handle other file types?
-            }
+            // skip if hidden file and "a" flag present
+            if (!a_option && ep->d_name[0] == '.')
+                continue;
+
+            if (ep->d_type == DT_DIR || ep->d_type == DT_REG) {
+                dir[i_d] = *ep;
+                i_d++;
+            } // TODO: do i need to handle other file types?
         }
         closedir(dp);
     } else {
