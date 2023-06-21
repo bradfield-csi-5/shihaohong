@@ -16,7 +16,8 @@ struct dirent dir[MAX_DIR];
 int i_d = 0;
 
 // TODO: `ls` lists directory does not exist at the beginning before listing any
-// real files/directories. Implement it in this manner.
+// real files/directories.
+// TODO: `ls` does not prefix with "$path:\n" if there's only one path to process
 // TODO: probably best to create a struct that houses all the dirs to parse
 // and any relevant metadata
 int main(int argc, char *argv[]) {
@@ -41,11 +42,10 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    int path_len = (argc < 2) ? 1 : argc - i;
+    int path_len = ((argc < 2) || (argc = i)) ? 1 : argc - i;
     char* paths[path_len];
     if (argc < 2 || argc == i) {
         paths[0] = "./";
-        path_len++;
     } else {
         int path_i;
         for (path_i = 0; path_i < path_len; i++, path_i++) {
@@ -57,7 +57,6 @@ int main(int argc, char *argv[]) {
     DIR *dp;
     struct dirent *ep;
     for (i = 0; i < path_len; i++) {
-        printf("got here\n");
         dp = opendir(paths[i]);
         if (dp != NULL) {
             i_d = 0;
