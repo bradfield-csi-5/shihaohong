@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
             qsort(dir, i_d, sizeof(struct dirent), dircmp);
             dirlist(dir, i_d, paths[i]);
         } else {
-            printf("%s: No such directory\n", paths[i]);
+            printf("%s: No such directory\n\n", paths[i]);
         }
     }
 
