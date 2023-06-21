@@ -92,7 +92,6 @@ int dircmp(const void *a, const void* b) {
 
 void dirlist(struct dirent dir[MAX_DIR], int len, char* path) {
     printf("%s:\n", path);
-
     int i;
     struct dirent *d;
     for (i = 0; i < len; i++) {
