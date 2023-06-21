@@ -15,6 +15,8 @@ void dirlist(struct dirent dir[MAX_DIR], int len, char* paths);
 struct dirent dir[MAX_DIR];
 int i_d = 0;
 
+// TODO: `ls` lists directory does not exist at the beginning before listing any
+// real files/directories. Implement it in this manner.
 int main(int argc, char *argv[]) {
     char* last_arg = argv[argc - 1];
 
