@@ -17,7 +17,6 @@ int i_d = 0;
 int dircmp(const void *a, const void *b);
 void dirlist();
 
-// TODO: error handling. exit 0 on success, >0 with errors
 int main(int argc, char *argv[]) {
     DIR *dp;
     struct dirent *ep;
@@ -49,6 +48,7 @@ int main(int argc, char *argv[]) {
 
     qsort(dir, i_d, sizeof(struct dirent), dircmp);
     dirlist();
+    return 0;
 }
 
 int dircmp(const void *a, const void* b) {
