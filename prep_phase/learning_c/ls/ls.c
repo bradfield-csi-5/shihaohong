@@ -17,6 +17,8 @@ int i_d = 0;
 
 // TODO: `ls` lists directory does not exist at the beginning before listing any
 // real files/directories. Implement it in this manner.
+// TODO: probably best to create a struct that houses all the dirs to parse
+// and any relevant metadata
 int main(int argc, char *argv[]) {
     char* last_arg = argv[argc - 1];
 
@@ -43,6 +45,7 @@ int main(int argc, char *argv[]) {
     char* paths[path_len];
     if (argc < 2 || argc == i) {
         paths[0] = "./";
+        path_len++;
     } else {
         int path_i;
         for (path_i = 0; path_i < path_len; i++, path_i++) {
@@ -53,8 +56,8 @@ int main(int argc, char *argv[]) {
     // opens a directory stream
     DIR *dp;
     struct dirent *ep;
-    i = 0;
     for (i = 0; i < path_len; i++) {
+        printf("got here\n");
         dp = opendir(paths[i]);
         if (dp != NULL) {
             i_d = 0;
