@@ -27,7 +27,9 @@ int main(int argc, char *argv[]) {
         while ((ep = readdir(dp))) {
             // TODO: sort like the actual `ls` program would (sort dir and non-dir lexicographically, separately)
             // TODO: display more directory information
-            printf("%s\n", ep->d_name);
+            if (ep->d_name[0] != '.') {
+                printf("%s\n", ep->d_name);
+            }
         }
         closedir(dp);
     } else {
