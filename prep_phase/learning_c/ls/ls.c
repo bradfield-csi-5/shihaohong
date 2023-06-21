@@ -7,21 +7,15 @@
 #define MAX_PATH 256
 #define MAX_DIR 65536
 
-#define CNOD_ERR 1
-
 // See https://www.gnu.org/software/libc/manual/html_node/Accessing-Directories.html
 // for the directory access APIs.
 
+int dircmp(const void *a, const void *b);
+void dirlist(struct dirent dir[MAX_DIR], int len, char* paths);
 struct dirent dir[MAX_DIR];
 int i_d = 0;
-int dircmp(const void *a, const void *b);
-void dirlist();
 
 int main(int argc, char *argv[]) {
-    DIR *dp;
-    struct dirent *ep;
-
-    char* path;
     char* last_arg = argv[argc - 1];
 
     int a_option = 0;
@@ -43,43 +37,44 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    // for now, assume only one file processed
-    // TODO: handle multiple file directory inputs in argument
-    // ie. ls ./ ../ (should list the contents of both directories,
-    // separated by \n\n). For now, assume last arg is the dir to be listed
-    if (argc < 2 || i == argc) {
-        path = "./";
+    int path_len = (argc < 2) ? 1 : argc - i;
+    char* paths[path_len];
+    if (argc < 2 || argc == i) {
+        paths[0] = "./";
     } else {
-        path = last_arg;
-    }
-
-    // if somehow NULL, default to pwd
-    if (path == NULL) {
-        path = "./";
+        int path_i;
+        for (path_i = 0; path_i < path_len; i++, path_i++) {
+            paths[path_i] = argv[i];
+        }
     }
 
     // opens a directory stream
-    dp = opendir(path);
-    if (dp != NULL) {
-        // reads directory stream until NULL when error/end
-        while ((ep = readdir(dp))) {
-            // skip if hidden file and "a" flag present
-            if (!a_option && ep->d_name[0] == '.')
-                continue;
+    DIR *dp;
+    struct dirent *ep;
+    i = 0;
+    for (i = 0; i < path_len; i++) {
+        dp = opendir(paths[i]);
+        if (dp != NULL) {
+            i_d = 0;
+            // reads directory stream until NULL when error/end
+            while ((ep = readdir(dp))) {
+                // skip if hidden file and "a" flag present
+                if (!a_option && ep->d_name[0] == '.')
+                    continue;
 
-            if (ep->d_type == DT_DIR || ep->d_type == DT_REG) {
-                dir[i_d] = *ep;
-                i_d++;
-            } // TODO: do i need to handle other file types?
+                if (ep->d_type == DT_DIR || ep->d_type == DT_REG) {
+                    dir[i_d] = *ep;
+                    i_d++;
+                } // TODO: do i need to handle other file types?
+            }
+            closedir(dp);
+            qsort(dir, i_d, sizeof(struct dirent), dircmp);
+            dirlist(dir, i_d, paths[i]);
+        } else {
+            printf("%s: No such directory\n", paths[i]);
         }
-        closedir(dp);
-    } else {
-        printf("Couldn't open the directory\n");
-        return CNOD_ERR;
     }
 
-    qsort(dir, i_d, sizeof(struct dirent), dircmp);
-    dirlist();
     return 0;
 }
 
@@ -91,11 +86,14 @@ int dircmp(const void *a, const void* b) {
     return strcmp(a_d->d_name, b_d->d_name);
 }
 
-void dirlist() {
+void dirlist(struct dirent dir[MAX_DIR], int len, char* path) {
+    printf("%s:\n", path);
+
     int i;
-    struct dirent d;
-    for (i = 0; i < i_d; i++) {
-        d = dir[i];
-        printf("%s\n", d.d_name);
+    struct dirent *d;
+    for (i = 0; i < len; i++) {
+        d = &dir[i];
+        printf("%s\n", d->d_name);
     }
+    printf("\n");
 }
