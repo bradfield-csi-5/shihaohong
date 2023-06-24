@@ -4,7 +4,6 @@
 #include <sys/types.h>
 #include <dirent.h>
 
-#define MAX_PATH 256
 #define MAX_DIR 65536
 
 // See https://www.gnu.org/software/libc/manual/html_node/Accessing-Directories.html
