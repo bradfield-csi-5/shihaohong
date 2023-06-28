@@ -20,6 +20,7 @@ func main() {
 			os.Exit(1)
 		}
 		_, err = io.Copy(os.Stdout, resp.Body)
+		fmt.Println("status code: ", resp.StatusCode)
 		resp.Body.Close()
 
 		if err != nil {
