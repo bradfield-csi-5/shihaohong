@@ -2,6 +2,8 @@ package main
 
 import (
 	"testing"
+
+	"github.com/popcount/utils"
 )
 
 const val uint64 = 255
@@ -19,24 +21,24 @@ BenchmarkPopCountClear-8        309934998                3.880 ns/op
 
 func BenchmarkPopCount(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		PopCount(val)
+		utils.PopCount(val)
 	}
 }
 
 func BenchmarkPopCountLoop(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		PopCountLoop(val)
+		utils.PopCountLoop(val)
 	}
 }
 
 func BenchmarkPopCountShift(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		PopCountShift(val)
+		utils.PopCountShift(val)
 	}
 }
 
 func BenchmarkPopCountClear(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		PopCountClear(val)
+		utils.PopCountClear(val)
 	}
 }
