@@ -11,7 +11,9 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	url_pkg "net/url"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -36,11 +38,28 @@ func fetch(url string, ch chan<- string) {
 	}
 
 	nbytes, err := io.Copy(ioutil.Discard, resp.Body)
-	resp.Body.Close() // don't leak resources
 	if err != nil {
 		ch <- fmt.Sprintf("while reading %s: %v", url, err)
 		return
 	}
 	secs := time.Since(start).Seconds()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		ch <- fmt.Sprintf("while reading all %s, %v", url, err)
+	}
+	resp.Body.Close() // don't leak resources
+
+	parsedUrl, err := url_pkg.Parse(url)
+	urlString := strings.TrimPrefix(parsedUrl.Hostname(), "www.")
+	if err != nil {
+		ch <- fmt.Sprintf("while parsing url %s, %v", url, err)
+	}
+
+	err = os.WriteFile("output_"+urlString, body, 0644)
+	if err != nil {
+		ch <- fmt.Sprintf("while writing file %s, %v", url, err)
+	}
+
 	ch <- fmt.Sprintf("%.2fs  %7d  %s", secs, nbytes, url)
 }
