@@ -8,7 +8,6 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"io/ioutil"
 	"net/http"
 	url_pkg "net/url"
@@ -37,14 +36,9 @@ func fetch(url string, ch chan<- string) {
 		return
 	}
 
-	nbytes, err := io.Copy(ioutil.Discard, resp.Body)
-	if err != nil {
-		ch <- fmt.Sprintf("while reading %s: %v", url, err)
-		return
-	}
+	body, err := ioutil.ReadAll(resp.Body)
 	secs := time.Since(start).Seconds()
 
-	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		ch <- fmt.Sprintf("while reading all %s, %v", url, err)
 	}
@@ -61,5 +55,5 @@ func fetch(url string, ch chan<- string) {
 		ch <- fmt.Sprintf("while writing file %s, %v", url, err)
 	}
 
-	ch <- fmt.Sprintf("%.2fs  %7d  %s", secs, nbytes, url)
+	ch <- fmt.Sprintf("%.2fs  %7d  %s", secs, len(body), url)
 }
