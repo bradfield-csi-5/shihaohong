@@ -24,6 +24,10 @@ func CountMatchingBits(x [32]byte, y [32]byte) int {
 		b2 := y[i]
 		// XOR the two values to get 0s where the bits match
 		// NOT the result of the above to get 1 and run PopCount on it
+		// example:
+		// b1: 			00110010
+		// b2:         	01110000
+		// ^(b1 ^ b2):	10111101
 		res += PopCount(^(b1 ^ b2))
 
 		// uncomment to check values
