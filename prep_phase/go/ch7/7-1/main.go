@@ -23,7 +23,7 @@ func (c *Counter) Write(p []byte) (int, error) {
 		return 0, err
 	}
 
-	return c.count, nil
+	return len(p), nil
 }
 
 func main() {
@@ -41,7 +41,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("word count: %d\n", res)
+	fmt.Printf("num bytes read: %d\n", res)
+	fmt.Printf("word count: %d\n", wc.count)
 
 	// test LineCounter
 	str = "lorem ipsum text \nblah blah blah   hahaha"
@@ -57,5 +58,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("line count: %d\n", res)
+	fmt.Printf("num bytes read: %d\n", res)
+	fmt.Printf("line count: %d\n", lc.count)
 }
