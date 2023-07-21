@@ -1,0 +1,2 @@
+writing some data into a file
+more bytes into the file
