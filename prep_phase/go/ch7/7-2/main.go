@@ -17,7 +17,7 @@ func (c *ByteCounter) Write(p []byte) (int, error) {
 		return 0, err
 	}
 
-	c.count += int64(len(p))
+	c.count += int64(n)
 	return n, nil
 }
 
