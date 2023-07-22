@@ -28,8 +28,6 @@ Europe/London: 16:14:23 |       Asia/Tokyo: 00:14:23    |       US/Eastern: 11:1
 Europe/London: 16:14:24 |       Asia/Tokyo: 00:14:24    |       US/Eastern: 11:14:24  |
 */
 func main() {
-	fmt.Println(os.Args[1:])
-
 	args := os.Args[1:]
 	servers := make([]server, len(args))
 
