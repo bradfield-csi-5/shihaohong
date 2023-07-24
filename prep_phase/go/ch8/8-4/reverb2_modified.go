@@ -26,6 +26,7 @@ func echo(c net.Conn, shout string, delay time.Duration, wg *sync.WaitGroup) {
 }
 
 func handleConn(c net.Conn) {
+	defer c.Close()
 	var wg sync.WaitGroup
 	input := bufio.NewScanner(c)
 	for input.Scan() {
@@ -36,12 +37,6 @@ func handleConn(c net.Conn) {
 	log.Println("Waiting for echoes")
 	wg.Wait()
 	log.Println("All echoes completed")
-
-	// NOTE: ignoring potential errors from input.Err()
-	err := c.Close()
-	if err != nil {
-		log.Print(err)
-	}
 }
 
 // should close write half of the TCP connection when number of
