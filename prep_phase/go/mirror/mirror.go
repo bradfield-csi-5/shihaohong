@@ -26,6 +26,7 @@ func extractLinks(resp *http.Response) ([]string, error) {
 		return nil, fmt.Errorf("parsing %s as HTML: %v", resp.Request.URL, err)
 	}
 
+	// use a set to avoid duplication
 	links := map[string]struct{}{}
 	visitNode := func(n *html.Node) {
 		if n.Type == html.ElementNode && n.Data == "a" {
