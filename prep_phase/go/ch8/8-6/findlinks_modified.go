@@ -71,8 +71,8 @@ func main() {
 	seen := make(map[string]bool)
 	for list := range worklist {
 		for _, item := range list {
-			fmt.Printf("url: %s\tdepth:%d\n", item.url, item.depth)
 			if !seen[item.url] {
+				fmt.Printf("url: %s\tdepth:%d\n", item.url, item.depth)
 				seen[item.url] = true
 				if item.depth < *depthFlag {
 					unseenLinks <- item
