@@ -39,6 +39,10 @@ func main() {
 	depthFlag := flag.Int("depth", 3, "depth of links to crawl for")
 	flag.Parse()
 
+	if *depthFlag <= 0 {
+		panic("-depth flag must be a non-zero positive int")
+	}
+
 	worklist := make(chan []item)  // lists of URLs, may have duplicates
 	unseenLinks := make(chan item) // de-duplicated URLs
 
