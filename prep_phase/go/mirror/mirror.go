@@ -29,6 +29,7 @@ func extractLinks(resp *http.Response, data []byte) ([]string, error) {
 		return nil, fmt.Errorf("parsing %s as HTML: %v", resp.Request.URL, err)
 	}
 
+	// TODO: URLs need to be altered to point to the mirrored page
 	// use a set to avoid duplication
 	links := map[string]struct{}{}
 	visitNode := func(n *html.Node) {
@@ -145,7 +146,6 @@ func main() {
 	n++
 	go func(link string) {
 		links := processUrl(link)
-		fmt.Println(links)
 		worklist <- links
 	}(args[0])
 
