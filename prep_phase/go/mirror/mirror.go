@@ -4,6 +4,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -88,6 +89,16 @@ func processUrl(url string) {
 	}
 
 	// save into local disk
+	filepath := basename + resp.Request.URL.Path
+	createDirectory(filepath)
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		resp.Body.Close()
+		log.Println(err)
+		return
+	}
+	createFile(filepath, "index.html", data)
+
 	links, err := extractLinks(resp)
 	if err != nil {
 		log.Println(err)
@@ -102,6 +113,14 @@ func createDirectory(path string) {
 		if err != nil {
 			log.Println(err)
 		}
+	}
+}
+
+func createFile(path string, filename string, data []byte) {
+	err := os.WriteFile(path+"/"+filename, data, 0666)
+
+	if err != nil {
+		log.Fatal(err)
 	}
 }
 
