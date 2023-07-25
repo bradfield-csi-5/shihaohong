@@ -4,7 +4,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -92,7 +92,7 @@ func processUrl(url string) {
 	// save into local disk
 	filepath := basename + resp.Request.URL.Path
 	createDirectory(filepath)
-	data, err := ioutil.ReadAll(resp.Body)
+	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		resp.Body.Close()
 		log.Println(err)
