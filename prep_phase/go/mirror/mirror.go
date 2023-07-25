@@ -1,22 +1,25 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"flag"
 	"fmt"
+	"golang.org/x/net/html"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"strings"
-
-	"golang.org/x/net/html"
 )
 
 // where the mirror files will be put into
 const basename = "contents"
 
-func extractLinks(resp *http.Response) ([]string, error) {
+// counting semaphore for how many parallel operations can be open
+var tokens = make(chan struct{}, 20)
+
+func extractLinks(resp *http.Response, data []byte) ([]string, error) {
 	doc, err := html.Parse(resp.Body)
 	if err != nil {
 		return nil, err
@@ -53,7 +56,6 @@ func extractLinks(resp *http.Response) ([]string, error) {
 	for k := range links {
 		linkSlice = append(linkSlice, k)
 	}
-
 	return linkSlice, nil
 }
 
@@ -69,43 +71,47 @@ func forEachNode(n *html.Node, pre func(n *html.Node)) {
 
 // Gets the document, puts it into a root directory appending the relative path
 // of the document.
-func processUrl(url string) {
-	// get file
+func processUrl(url string) []string {
+	tokens <- struct{}{}
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Println(err)
-		return
+		return nil
 	}
 
 	if resp.StatusCode != http.StatusOK {
 		resp.Body.Close()
 		log.Printf("getting %s: %s", url, resp.Status)
-		return
+		return nil
 	}
 
 	if !strings.Contains(resp.Header.Get("Content-Type"), "text/html") {
 		resp.Body.Close()
 		log.Printf("content %s is not text/html: %s", url, resp.Header.Get("Content-Type"))
-		return
+		return nil
 	}
 
 	// save into local disk
 	filepath := basename + resp.Request.URL.Path
 	createDirectory(filepath)
+
 	data, err := io.ReadAll(resp.Body)
+	resp.Body = io.NopCloser(bytes.NewBuffer(data))
 	if err != nil {
 		resp.Body.Close()
 		log.Println(err)
-		return
+		return nil
 	}
 	createFile(filepath, "index.html", data)
 
-	links, err := extractLinks(resp)
+	links, err := extractLinks(resp, data)
+	<-tokens
 	if err != nil {
 		log.Println(err)
-		return
+		return nil
 	}
-	fmt.Println(links)
+
+	return links
 }
 
 func createDirectory(path string) {
@@ -133,9 +139,29 @@ func main() {
 		log.Println("Please pass in a single URL to process. For example, https://go.dev")
 	}
 
-	// init mirror directory
 	createDirectory(basename)
+	worklist := make(chan []string)
+	var n int
+	n++
+	go func(link string) {
+		links := processUrl(link)
+		fmt.Println(links)
+		worklist <- links
+	}(args[0])
 
-	// process first file
-	processUrl(args[0])
+	seen := make(map[string]bool)
+	for ; n > 0; n-- {
+		list := <-worklist
+		for _, link := range list {
+			if !seen[link] {
+				fmt.Printf("url: %s\n", link)
+				seen[link] = true
+				n++
+				go func(link string) {
+					links := processUrl(link)
+					worklist <- links
+				}(link)
+			}
+		}
+	}
 }
