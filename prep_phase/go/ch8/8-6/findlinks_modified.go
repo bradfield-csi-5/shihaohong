@@ -18,7 +18,6 @@ import (
 )
 
 func crawl(it item) []item {
-	fmt.Printf("url: %s\tdepth:%d\n", it.url, it.depth)
 	list, err := links.Extract(it.url)
 	if err != nil {
 		log.Print(err)
@@ -68,14 +67,12 @@ func main() {
 	seen := make(map[string]bool)
 	for list := range worklist {
 		for _, item := range list {
-			// terminal case
-			if item.depth > *depthFlag {
-				continue
-			}
-
+			fmt.Printf("url: %s\tdepth:%d\n", item.url, item.depth)
 			if !seen[item.url] {
 				seen[item.url] = true
-				unseenLinks <- item
+				if item.depth < *depthFlag {
+					unseenLinks <- item
+				}
 			}
 		}
 	}
