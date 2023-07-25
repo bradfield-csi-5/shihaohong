@@ -145,8 +145,7 @@ func main() {
 	var n int
 	n++
 	go func(link string) {
-		links := processUrl(link)
-		worklist <- links
+		worklist <- []string{link}
 	}(args[0])
 
 	seen := make(map[string]bool)
