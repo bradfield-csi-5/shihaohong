@@ -19,17 +19,14 @@ const basename = "contents"
 // counting semaphore for how many parallel operations can be open
 var tokens = make(chan struct{}, 20)
 
+// TODO: URLs need to be altered to point to the mirrored page
 func extractLinks(resp *http.Response, data []byte) ([]string, error) {
 	doc, err := html.Parse(resp.Body)
 	if err != nil {
-		return nil, err
-	}
-	resp.Body.Close()
-	if err != nil {
 		return nil, fmt.Errorf("parsing %s as HTML: %v", resp.Request.URL, err)
 	}
+	resp.Body.Close()
 
-	// TODO: URLs need to be altered to point to the mirrored page
 	// use a set to avoid duplication
 	links := map[string]struct{}{}
 	visitNode := func(n *html.Node) {
