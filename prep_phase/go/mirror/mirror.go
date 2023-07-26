@@ -74,6 +74,7 @@ func forEachNode(n *html.Node, pre func(n *html.Node)) {
 // of the document.
 func processUrl(url string) []string {
 	tokens <- struct{}{}
+	defer func() { <-tokens }()
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Println(err)
@@ -106,7 +107,6 @@ func processUrl(url string) []string {
 	createFile(filepath, "index.html", data)
 
 	links, err := extractLinks(resp, data)
-	<-tokens
 	if err != nil {
 		log.Println(err)
 		return nil
