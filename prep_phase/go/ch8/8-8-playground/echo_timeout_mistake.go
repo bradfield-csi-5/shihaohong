@@ -36,10 +36,6 @@ func handleConn(c net.Conn, cnt chan<- struct{}) {
 
 //!-
 
-type Err struct {
-	Error error
-}
-
 func main() {
 	l, err := net.Listen("tcp", "localhost:8000")
 	if err != nil {
