@@ -25,7 +25,6 @@ func extractLinks(resp *http.Response, data []byte) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("parsing %s as HTML: %v", resp.Request.URL, err)
 	}
-	resp.Body.Close()
 
 	// use a set to avoid duplication
 	links := map[string]struct{}{}
@@ -70,22 +69,19 @@ func forEachNode(n *html.Node, pre func(n *html.Node)) {
 // Gets the document, puts it into a root directory appending the relative path
 // of the document.
 func processUrl(url string) []string {
-	tokens <- struct{}{}
-	defer func() { <-tokens }()
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Println(err)
 		return nil
 	}
+	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		resp.Body.Close()
 		log.Printf("getting %s: %s", url, resp.Status)
 		return nil
 	}
 
 	if !strings.Contains(resp.Header.Get("Content-Type"), "text/html") {
-		resp.Body.Close()
 		log.Printf("content %s is not text/html: %s", url, resp.Header.Get("Content-Type"))
 		return nil
 	}
@@ -97,12 +93,11 @@ func processUrl(url string) []string {
 	data, err := io.ReadAll(resp.Body)
 	resp.Body = io.NopCloser(bytes.NewBuffer(data))
 	if err != nil {
-		resp.Body.Close()
 		log.Println(err)
 		return nil
 	}
-	createFile(filepath, "index.html", data)
 
+	createFile(filepath, "index.html", data)
 	links, err := extractLinks(resp, data)
 	if err != nil {
 		log.Println(err)
@@ -123,7 +118,6 @@ func createDirectory(path string) {
 
 func createFile(path string, filename string, data []byte) {
 	err := os.WriteFile(path+"/"+filename, data, 0666)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -154,7 +148,9 @@ func main() {
 				seen[link] = true
 				n++
 				go func(link string) {
+					tokens <- struct{}{}
 					links := processUrl(link)
+					<-tokens
 					worklist <- links
 				}(link)
 			}
