@@ -25,6 +25,10 @@ print_first_sentence_article() {
     # Assume the first <p> followed by no other tags is the first sentence of the paragraph
     # TODO(shihaohong): what happened to -P flag in newer versions of OS X?
     # Used this hack: https://stackoverflow.com/a/22704387
+    # TODO(shihaohong): this filter doesn't actually work all the time. Examples:
+    # - <p><b> Malaysia ...
+    # - <p> tags in tables preceding the first sentence, usually on the right side of the wiki article
+    # idea: loosely look for <b> within a <p> tag? that's usually the first sentence highlights the search term
     search_result=$(echo "$PAGE" | ggrep -P '(?<=<p>[a-zA-Z])(.*?)(?=[.!?]\s)')
     # echo searched results
     # echo "${search_result:0:1000}"
