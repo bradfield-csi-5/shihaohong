@@ -1,5 +1,7 @@
 #!/bin/bash
 
+TMP_FILENAME="out.txt"
+
 remove_html_tags() {
     # sed to search for all <*> and remove them
     echo "$1" | sed 's/<[^>]*>//g'
@@ -7,7 +9,7 @@ remove_html_tags() {
 
 print_title_article() {
     # grep to search for the main title
-    search_result=$(echo "$PAGE" | ggrep -P '(?<=<span class="mw-page-title-main">)(.*?)(?=</span>)')
+    search_result=$(ggrep -P '(?<=<span class="mw-page-title-main">)(.*?)(?=</span>)' "$1")
     # echo title result
     # echo $search_result
 
@@ -20,8 +22,6 @@ print_title_article() {
 }
 
 print_first_sentence_article() {
-    PAGE=$1
-
     # Assume the first <p> followed by no other tags is the first sentence of the paragraph
     # TODO(shihaohong): what happened to -P flag in newer versions of OS X?
     # Used this hack: https://stackoverflow.com/a/22704387
@@ -29,7 +29,7 @@ print_first_sentence_article() {
     # - <p><b> Malaysia ...
     # - <p> tags in tables preceding the first sentence, usually on the right side of the wiki article
     # idea: loosely look for <b> within a <p> tag? that's usually the first sentence highlights the search term
-    search_result=$(echo "$PAGE" | ggrep -P '(?<=<p>[a-zA-Z])(.*?)(?=[.!?]\s)')
+    search_result=$(ggrep -P '(?<=<p>[a-zA-Z])(.*?)(?=[.!?]\s)' "$1")
     # echo searched results
     # echo "${search_result:0:1000}"
     filtered_result=$(remove_html_tags "$search_result")
@@ -45,9 +45,15 @@ print_first_sentence_article() {
     echo "${filtered_result:0:search_idx}"
 }
 
+print_section_headings_article() {
+    # grep to search for the section headings
+    ggrep -oP '(?<=<span class="mw-headline")(.*?)(?=</span)' "$1" | cut -d '>' -f2
+}
+
 # curl website
-PAGE=$(curl "$1" -s)
-if [ -z "${PAGE}" ]; then
+curl "$1" -s > $TMP_FILENAME
+
+if [ ! -f $TMP_FILENAME ]; then
     echo Error fetching web page
     exit 1
 fi
@@ -56,8 +62,12 @@ fi
     # regex and grab the first sentence of the article
     # regex and grab the list of section headings
 if  [ -z "$2" ]; then
-    print_title_article "$PAGE"
-    print_first_sentence_article "$PAGE"
+    echo "---Title of Wikipedia Article:---"
+    print_title_article "$TMP_FILENAME"
+    echo "---First sentence:---"
+    print_first_sentence_article "$TMP_FILENAME"
+    echo "---List of Sections:---"
+    print_section_headings_article "$TMP_FILENAME"
 # if third argument:
     # regex and grab the first sentence of the section
     # grab all subsection headings
