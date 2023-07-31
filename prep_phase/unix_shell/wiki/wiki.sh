@@ -23,6 +23,7 @@ print_first_sentence_article() {
     PAGE=$1
 
     # Assume the first <p> followed by no other tags is the first sentence of the paragraph
+    # TODO(shihaohong): what happened to -P flag in newer versions of OS X?
     search_result=$(echo "$PAGE" | ggrep -P '(?<=<p>[a-zA-Z])(.*?)(?=[.!?]\s)')
     # echo searched results
     # echo "${search_result:0:1000}"
