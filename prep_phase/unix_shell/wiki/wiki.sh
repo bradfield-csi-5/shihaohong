@@ -49,7 +49,7 @@ print_section_headings_article() {
 }
 
 # curl website
-curl "$1" -s > $TMP_FILENAME
+curl "https://en.wikipedia.org/wiki/$1" -s > $TMP_FILENAME
 
 if [ ! -f $TMP_FILENAME ]; then
     echo Error fetching web page
