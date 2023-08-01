@@ -4,11 +4,6 @@ SECTION_FILENAME="section.txt"
 SECTION_DATA_FILENAME="section_data.txt"
 SECTION_LIST_FILENAME="section_list.txt"
 
-remove_html_tags() {
-    # sed to search for all <*> and remove them
-    echo "$1" | sed 's/<[^>]*>//g'
-}
-
 print_first_sentence_article() {
     curl "$WIKIPEDIA_API_URL?format=json&action=query&prop=extracts&exsentences=1&explaintext&titles=$1" -s > $SECTION_FILENAME
     if [ ! -f $SECTION_FILENAME ]; then
@@ -70,6 +65,10 @@ elif [ -z "$3" ]; then
     echo "---First sentence:---"
     print_first_sentence_section "$1" "$2"
     # TODO(shihaohong): print list of subsections
+elif [ $# -gt 3 ]; then
+    echo Too many arguments. Please pass at most two arguments
+    echo Current args:
+    printf '"%s"\n' "$@"
 else
     echo Pass a Wikipedia URL into the first argument of the program
     echo Optionally, pass a second argument with the section to display
