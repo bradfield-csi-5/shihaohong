@@ -11,11 +11,7 @@ print_first_sentence_article() {
         exit 1
     fi
 
-    search_result=$(grep -o '"extract":".*"' $SECTION_FILENAME | awk -F'"' '{print $4}')
-    # echo searched results
-    # echo "${search_result:0:1000}"
-
-    echo "$search_result"
+    grep -o '"extract":".*"' $SECTION_FILENAME | awk -F'"' '{print $4}'
 }
 
 print_first_sentence_section() {
@@ -26,7 +22,6 @@ print_first_sentence_section() {
     fi
 
     EXPR=("\"line\":\"$2\"")
-    # get index
     INDEX=$(grep "${EXPR[@]}" $SECTION_LIST_FILENAME | grep -o '"index":"[0-9]*"' | sed -e 's/"index":"//' -e 's/"$//')
 
     curl "$WIKIPEDIA_API_URL?action=parse&format=json&servedby=1&page=$1&prop=text&section=$INDEX&disabletoc=1" > $SECTION_DATA_FILENAME -s
@@ -46,7 +41,6 @@ print_section_headings_article() {
         exit 1
     fi
 
-    # grep to search for the section headings
     grep 'toclevel":1' $SECTION_LIST_FILENAME | grep -o '"line":.*,' |  sed -e 's/"line":"//'  -e 's/","number":".*//'
 }
 
