@@ -1,7 +1,7 @@
 #!/bin/bash
-
-TMP_FILENAME="out.txt"
 WIKIPEDIA_API_URL="https://en.wikipedia.org/w/api.php"
+SECTION_FILENAME="section.txt"
+SECTION_LIST_FILENAME="section_list.txt"
 
 remove_html_tags() {
     # sed to search for all <*> and remove them
@@ -9,27 +9,28 @@ remove_html_tags() {
 }
 
 print_first_sentence_article() {
-    curl "$WIKIPEDIA_API_URL?format=json&action=query&prop=extracts&exsentences=1&explaintext&titles=$1" -s > section.txt
-    search_result=$(grep -o '"extract":".*"' section.txt | awk -F'"' '{print $4}')
+    curl "$WIKIPEDIA_API_URL?format=json&action=query&prop=extracts&exsentences=1&explaintext&titles=$1" -s > $SECTION_FILENAME
+    if [ ! -f $SECTION_FILENAME ]; then
+        echo Error fetching web page
+        exit 1
+    fi
+
+    search_result=$(grep -o '"extract":".*"' $SECTION_FILENAME | awk -F'"' '{print $4}')
     # echo searched results
     # echo "${search_result:0:1000}"
 
-    # echo filtered sentence
     echo "$search_result"
 }
 
 print_section_headings_article() {
+    curl "$WIKIPEDIA_API_URL?action=parse&format=json&page=$1&prop=sections&disabletoc=1" -s | tr '}' '\n' > $SECTION_LIST_FILENAME
+    if [ ! -f $SECTION_LIST_FILENAME ]; then
+        echo Error fetching web page
+        exit 1
+    fi
     # grep to search for the section headings
-    ggrep -oP '(?<=<span class="mw-headline")(.*?)(?=</span)' "$1" | cut -d '>' -f2
+    grep 'toclevel":1' $SECTION_LIST_FILENAME | grep -o '"line":.*,' |  sed -e 's/"line":"//'  -e 's/","number":".*//'
 }
-
-# curl website
-curl "https://en.wikipedia.org/wiki/$1" -s > $TMP_FILENAME
-
-if [ ! -f $TMP_FILENAME ]; then
-    echo Error fetching web page
-    exit 1
-fi
 
 # if no third argument:
     # regex and grab the first sentence of the article
@@ -40,7 +41,7 @@ if  [ -z "$2" ]; then
     echo "---First sentence:---"
     print_first_sentence_article "$1"
     echo "---List of Sections:---"
-    print_section_headings_article "$TMP_FILENAME"
+    print_section_headings_article "$1"
 # if third argument:
     # regex and grab the first sentence of the section
     # grab all subsection headings
