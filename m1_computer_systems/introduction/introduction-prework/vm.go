@@ -24,20 +24,41 @@ const (
 // 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f ... ff
 // __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ ... __
 // ^==DATA===============^ ^==INSTRUCTIONS==============^
-//
 func compute(memory []byte) {
 
 	registers := [3]byte{8, 0, 0} // PC, R1 and R2
 
 	// Keep looping, like a physical computer's clock
+clock:
 	for {
+		op := memory[registers[0]]
+		registers[0]++
 
-		// op := TODO // fetch the opcode
+		var arg1, arg2 byte
+		// decode and execute
+		// TODO(shihaohong): error handle for registers that arents 0x01 and 0x02
+		switch op {
+		case Load:
+			arg1 = memory[registers[0]]
+			registers[0]++
+			arg2 = memory[registers[0]]
+			registers[0]++
+			registers[arg1] = memory[arg2]
+		case Store:
+			arg1 = memory[registers[0]]
+			registers[0]++
+			arg2 = memory[registers[0]]
+			registers[0]++
 
-		// // decode and execute
-		// switch op {
-		// case Load:
-		//   TODO
-		// ...
+			memory[arg2] = registers[arg1]
+		case Add:
+			registers[1] = registers[1] + registers[2]
+			registers[0] += 2
+		case Sub:
+			registers[1] = registers[1] - registers[2]
+			registers[0] += 2
+		case Halt:
+			break clock
+		}
 	}
 }

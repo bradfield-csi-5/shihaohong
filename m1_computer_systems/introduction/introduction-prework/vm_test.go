@@ -26,9 +26,9 @@ halt`,
 	{
 		name: "LoadStore",
 		asm: `
-load r1 1
-store r1 0
-halt`,
+	load r1 1
+	store r1 0
+	halt`,
 		cases: []vmCase{
 			{1, 0, 1},
 			{255, 0, 255},
@@ -38,11 +38,11 @@ halt`,
 	{
 		name: "Add",
 		asm: `
-load r1 1
-load r2 2
-add r1 r2
-store r1 0
-halt`,
+	load r1 1
+	load r2 2
+	add r1 r2
+	store r1 0
+	halt`,
 		cases: []vmCase{
 			{1, 2, 3},     // 1 + 2 = 3
 			{254, 1, 255}, // support max int
@@ -52,11 +52,11 @@ halt`,
 	{
 		name: "Subtract",
 		asm: `
-load r1 1
-load r2 2
-sub r1 r2
-store r1 0
-halt`,
+	load r1 1
+	load r2 2
+	sub r1 r2
+	store r1 0
+	halt`,
 		cases: []vmCase{
 			{5, 3, 2},
 			{0, 1, 255}, // correctly overflow backwards
