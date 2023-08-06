@@ -31,56 +31,41 @@ func compute(memory []byte) {
 	// Keep looping, like a physical computer's clock
 clock:
 	for {
-		op := memory[registers[0]]
-		registers[0]++
+		op := fetchAndAdvance(&registers, &memory)
 
 		var arg1, arg2 byte
 		// decode and execute
 		// TODO(shihaohong): error handle for registers that arents 0x01 and 0x02
 		switch op {
 		case Load:
-			arg1 = memory[registers[0]]
-			registers[0]++
-			arg2 = memory[registers[0]]
-			registers[0]++
+			arg1 = fetchAndAdvance(&registers, &memory)
+			arg2 = fetchAndAdvance(&registers, &memory)
 			registers[arg1] = memory[arg2]
 		case Store:
-			arg1 = memory[registers[0]]
-			registers[0]++
-			arg2 = memory[registers[0]]
-			registers[0]++
+			arg1 = fetchAndAdvance(&registers, &memory)
+			arg2 = fetchAndAdvance(&registers, &memory)
 			memory[arg2] = registers[arg1]
 		case Add:
-			arg1 = memory[registers[0]]
-			registers[0]++
-			arg2 = memory[registers[0]]
-			registers[0]++
+			arg1 = fetchAndAdvance(&registers, &memory)
+			arg2 = fetchAndAdvance(&registers, &memory)
 			registers[arg1] = registers[arg1] + registers[arg2]
 		case Sub:
-			arg1 = memory[registers[0]]
-			registers[0]++
-			arg2 = memory[registers[0]]
-			registers[0]++
+			arg1 = fetchAndAdvance(&registers, &memory)
+			arg2 = fetchAndAdvance(&registers, &memory)
 			registers[arg1] = registers[arg1] - registers[arg2]
 		case Addi:
-			arg1 = memory[registers[0]]
-			registers[0]++
-			arg2 = memory[registers[0]]
-			registers[0]++
+			arg1 = fetchAndAdvance(&registers, &memory)
+			arg2 = fetchAndAdvance(&registers, &memory)
 			registers[arg1] += arg2
 		case Subi:
-			arg1 = memory[registers[0]]
-			registers[0]++
-			arg2 = memory[registers[0]]
-			registers[0]++
+			arg1 = fetchAndAdvance(&registers, &memory)
+			arg2 = fetchAndAdvance(&registers, &memory)
 			registers[arg1] -= arg2
 		case Jump:
-			registers[0] = memory[registers[0]]
+			registers[0] = fetchAndAdvance(&registers, &memory)
 		case Beqz:
-			arg1 = memory[registers[0]]
-			registers[0]++
-			arg2 = memory[registers[0]]
-			registers[0]++
+			arg1 = fetchAndAdvance(&registers, &memory)
+			arg2 = fetchAndAdvance(&registers, &memory)
 			if registers[arg1] == 0x00 {
 				registers[0] += arg2
 			}
@@ -88,4 +73,10 @@ clock:
 			break clock
 		}
 	}
+}
+
+func fetchAndAdvance(registers *[3]byte, memory *[]byte) byte {
+	val := (*memory)[registers[0]]
+	registers[0] += 1
+	return val
 }
