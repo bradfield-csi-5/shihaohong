@@ -89,7 +89,7 @@ var stretchGoalTests = []vmTest{
 			{42, 1, 42}, // r2 is nonzero, so should store back 42
 		},
 	},
-	// 	// Support adding immediate values
+	// Support adding immediate values
 	{
 		name: "Addi",
 		asm: `
@@ -115,7 +115,7 @@ var stretchGoalTests = []vmTest{
 	store r2 0
 	halt`,
 		cases: []vmCase{
-			// {0, 0, 0},
+			{0, 0, 0},
 			{1, 0, 1},
 			{5, 0, 15},
 			{10, 0, 55},
