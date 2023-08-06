@@ -49,14 +49,41 @@ clock:
 			registers[0]++
 			arg2 = memory[registers[0]]
 			registers[0]++
-
 			memory[arg2] = registers[arg1]
 		case Add:
-			registers[1] = registers[1] + registers[2]
-			registers[0] += 2
+			arg1 = memory[registers[0]]
+			registers[0]++
+			arg2 = memory[registers[0]]
+			registers[0]++
+			registers[arg1] = registers[arg1] + registers[arg2]
 		case Sub:
-			registers[1] = registers[1] - registers[2]
-			registers[0] += 2
+			arg1 = memory[registers[0]]
+			registers[0]++
+			arg2 = memory[registers[0]]
+			registers[0]++
+			registers[arg1] = registers[arg1] - registers[arg2]
+		case Addi:
+			arg1 = memory[registers[0]]
+			registers[0]++
+			arg2 = memory[registers[0]]
+			registers[0]++
+			registers[arg1] += arg2
+		case Subi:
+			arg1 = memory[registers[0]]
+			registers[0]++
+			arg2 = memory[registers[0]]
+			registers[0]++
+			registers[arg1] -= arg2
+		case Jump:
+			registers[0] = memory[registers[0]]
+		case Beqz:
+			arg1 = memory[registers[0]]
+			registers[0]++
+			arg2 = memory[registers[0]]
+			registers[0]++
+			if registers[arg1] == 0x00 {
+				registers[0] += arg2
+			}
 		case Halt:
 			break clock
 		}
