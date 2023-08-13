@@ -1,44 +1,44 @@
 section .text
 global binary_convert
-binary_convert: 			; rdi points to input string
-	xor r8, r8 				; strlen
+binary_convert:
+	xor r8, r8 ; strlen
 
-.getlen:
-	movzx ecx, byte [rdi]	; each char is one byte
-	cmp byte[rdi], 0
+.getstrlen:
+	movzx ecx, byte [rdi]
+	cmp byte[rdi], 0 ; logic to cover strlen = 0
 	je .start_convert
 
 	inc r8
 	add rdi, 1
-	jmp .getlen
+	jmp .getstrlen
 
 .start_convert:
-sub rdi, r8 				; reset the addr of rdi
-	xor rax, rax 			; init an accumulator (counter)
+	sub rdi, r8 ; reset rdi to initial position
+	xor rax, rax ; init ret value to 0
 
 .get_char:
-	movzx rcx, byte [rdi] 	; each char is one byte
-	and rcx, 1 				; take only lowest order bit
+	movzx rcx, byte [rdi]
+	and rcx, 1
 	cmp rcx, 0
-	je .check_char
+	je .check_next_char ; if bit is 0, skip calculations
 
-	mov r9, 1 				; calc_register
-	mov r10, 1 				; calc_iterator
+	mov r9, 1 ; init mult init value
+	mov r10, 1 ; init mult iterator
 
-.get_val:
+.exp_2:
 	cmp r10, r8
-	je .add
+	je .accumulate
 	imul r9, 2
 	inc r10
-	jmp .get_val
+	jmp .exp_2
 
-.add:
-	add rax, r9 			; acc += calc_register
+.accumulate:
+	add rax, r9
 
-.check_char:
+.check_next_char:
 	dec r8
 	add rdi, 1
-	cmp r8, 0 				; got to end of the string
+	cmp r8, 0
 	jge .get_char
 
 .end:
