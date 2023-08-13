@@ -28,8 +28,7 @@ check_uppercase:
 continue_to_next_char:
 	add rdi, 1
 	cmp byte [rdi], 0
-	je check_map
-	jmp check_char
+	jne check_char
 
 check_map:
 	xor rax, rax
