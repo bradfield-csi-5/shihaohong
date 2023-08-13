@@ -5,8 +5,25 @@ pangram: ; rdi = string
 
 check_char:
 	movzx ecx, byte [rdi]
-	cmp ecx, 97
-	jge is_lowercase_lower
+	cmp ecx, uppercase_low
+	jl check_uppercase
+
+check_lowercase: ; set that within range
+	cmp ecx, uppercase_high
+	jg check_uppercase ; not a lowercase character, jump to next char
+	mov r9d, ecx
+	sub r9d, uppercase_low
+	bts r8d, r9d ; char is within range, set map
+	jmp continue_to_next_char
+
+check_uppercase:
+	cmp ecx, lowercase_low
+	jl continue_to_next_char
+	cmp ecx, lowercase_high
+	jg continue_to_next_char ; not a uppercase character, jump to next char
+	mov r9d, ecx
+	sub r9d, lowercase_low
+	bts r8d, r9d ; char is within range, set map
 
 continue_to_next_char:
 	add rdi, 1
@@ -14,27 +31,17 @@ continue_to_next_char:
 	je check_map
 	jmp check_char
 
-is_lowercase_lower: ; set that within range
-	cmp ecx, 122
-	jg continue_to_next_char ; not a lowercase character, jump to next char
-
-is_lowercase_upper: ; char is within range, set map
-	mov r9d, ecx
-	sub r9d, 97
-	bts r8d, r9d
-
-	jmp continue_to_next_char
-
-; ignore upper case for now
-
 check_map:
 	xor rax, rax
-	cmp r8, mapEq
+	cmp r8, map_eq
 	jne end
 	mov rax, 1
 end:
 	ret
 
-
-		section 	.bss
-mapEq	equ			67108863
+				section 	.bss
+map_eq			equ			67108863
+lowercase_low	equ			65
+lowercase_high	equ			90
+uppercase_low	equ			97
+uppercase_high	equ			122

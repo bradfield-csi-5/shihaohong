@@ -34,6 +34,9 @@ void test_pangram_punctuated(void) {
 void test_pangram_incomplete(void) {
   TEST_ASSERT_FALSE(pangram("abcdefghijklmnopqrstuvwxy"));
 }
+void test_pangram_incomplete_upper_case(void) {
+  TEST_ASSERT_FALSE(pangram("BCDEFGHIJLMNOPQRSTUVWXYZ"));
+}
 void test_pangram_mixed_case(void) {
   TEST_ASSERT_TRUE(pangram("ABCdefGHIjklMNOpqrSTUvwxYZ"));
 }
@@ -44,22 +47,23 @@ void test_pangram_phrase(void) {
 int main(void) {
     UNITY_BEGIN();
 
-    // RUN_TEST(test_sum_to_0);
-    // RUN_TEST(test_sum_to_1);
-    // RUN_TEST(test_sum_to_3);
-    // RUN_TEST(test_sum_to_10);
-    // RUN_TEST(test_sum_to_1000);
+    RUN_TEST(test_sum_to_0);
+    RUN_TEST(test_sum_to_1);
+    RUN_TEST(test_sum_to_3);
+    RUN_TEST(test_sum_to_10);
+    RUN_TEST(test_sum_to_1000);
 
-    // RUN_TEST(test_convert_0);
-    // RUN_TEST(test_convert_1);
-    // RUN_TEST(test_convert_110);
-    // RUN_TEST(test_convert_1111);
-    // RUN_TEST(test_convert_10101101);
+    RUN_TEST(test_convert_0);
+    RUN_TEST(test_convert_1);
+    RUN_TEST(test_convert_110);
+    RUN_TEST(test_convert_1111);
+    RUN_TEST(test_convert_10101101);
 
     RUN_TEST(test_pangram_empty);
     RUN_TEST(test_pangram_alpha);
     RUN_TEST(test_pangram_punctuated);
     RUN_TEST(test_pangram_incomplete);
+    RUN_TEST(test_pangram_incomplete_upper_case);
     RUN_TEST(test_pangram_mixed_case);
     RUN_TEST(test_pangram_phrase);
 
