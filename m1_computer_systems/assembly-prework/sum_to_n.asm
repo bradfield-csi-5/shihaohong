@@ -1,14 +1,14 @@
 section .text
 global sum_to_n
 sum_to_n:			; rdi is the input val
-	xor rbx, rbx 	; reserve a register for total, set to zero
-	xor r8, r8 		; set register for iterator
+	xor ebx, ebx 	; reserve a register for total, set to zero
+	xor r8d, r8d 		; set register for iterator
 
 accumulate:
-	add rbx, r8
-	inc r8
-	cmp r8, rdi
+	add ebx, r8d
+	inc r8d
+	cmp r8d, edi
 	jle accumulate
 
-	mov rax, rbx 	; save total to rax
+	mov eax, ebx 	; save total to rax
 	ret
