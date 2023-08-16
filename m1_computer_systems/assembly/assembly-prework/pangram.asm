@@ -38,7 +38,7 @@ check_map:
 end:
 	ret
 
-				section 	.bss
+				section 	.rodata
 map_eq			equ			67108863
 lowercase_low	equ			65
 lowercase_high	equ			90
