@@ -37,7 +37,7 @@ binary_convert:
 
 .check_next_char:
 	dec r8
-	add rdi, 1
+	inc rdi
 	cmp r8, 0
 	jge .get_char
 
