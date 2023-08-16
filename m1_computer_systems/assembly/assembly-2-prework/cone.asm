@@ -10,6 +10,6 @@ volume:
 	divss xmm0, xmm1 ; pi * r^2 * h / 3
  	ret
 
-			section 	.data
+			section 	.rodata
 pi:			dd 			3.14159265359
 const_3:	dd			3
