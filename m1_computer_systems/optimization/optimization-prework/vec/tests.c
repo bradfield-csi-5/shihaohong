@@ -3,6 +3,10 @@
 #include "vec.h"
 
 extern data_t dotproduct(vec_ptr, vec_ptr);
+extern data_t dotproduct_reduce_len_call(vec_ptr, vec_ptr);
+extern data_t dotproduct_reduce_proc_call(vec_ptr, vec_ptr);
+extern data_t dotproduct_unrolled_2_1(vec_ptr, vec_ptr);
+extern data_t dotproduct_unrolled_2_2(vec_ptr, vec_ptr);
 
 void setUp(void) {
 }
@@ -15,6 +19,10 @@ void test_empty(void) {
   vec_ptr v = new_vec(0);
 
   TEST_ASSERT_EQUAL(0, dotproduct(u, v));
+  TEST_ASSERT_EQUAL(0, dotproduct_reduce_len_call(u, v));
+  TEST_ASSERT_EQUAL(0, dotproduct_reduce_proc_call(u, v));
+  TEST_ASSERT_EQUAL(0, dotproduct_unrolled_2_1(u, v));
+  TEST_ASSERT_EQUAL(0, dotproduct_unrolled_2_2(u, v));
 
   free_vec(u);
   free_vec(v);
@@ -32,6 +40,10 @@ void test_basic(void) {
   set_vec_element(v, 2, 6);
 
   TEST_ASSERT_EQUAL(32, dotproduct(u, v));
+  TEST_ASSERT_EQUAL(32, dotproduct_reduce_len_call(u, v));
+  TEST_ASSERT_EQUAL(32, dotproduct_reduce_proc_call(u, v));
+  TEST_ASSERT_EQUAL(32, dotproduct_unrolled_2_1(u, v));
+  TEST_ASSERT_EQUAL(32, dotproduct_unrolled_2_2(u, v));
 
   free_vec(u);
   free_vec(v);
@@ -49,6 +61,10 @@ void test_longer(void) {
 
   long expected = (2 * n * n * n + 3 * n * n + n) / 6;
   TEST_ASSERT_EQUAL(expected, dotproduct(u, v));
+  TEST_ASSERT_EQUAL(expected, dotproduct_reduce_len_call(u, v));
+  TEST_ASSERT_EQUAL(expected, dotproduct_reduce_proc_call(u, v));
+  TEST_ASSERT_EQUAL(expected, dotproduct_unrolled_2_1(u, v));
+  TEST_ASSERT_EQUAL(expected, dotproduct_unrolled_2_2(u, v));
 
   free_vec(u);
   free_vec(v);

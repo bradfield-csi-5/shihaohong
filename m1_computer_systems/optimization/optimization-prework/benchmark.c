@@ -37,6 +37,7 @@ void benchmark(long n, data_t (*f)(vec_ptr, vec_ptr), char* func_name) {
 // sample use
 int main() {
     benchmark(20000, dotproduct, "dotproduct_raw");
+    benchmark(20000, dotproduct_reduce_len_call, "dotproduct_reduce_len_call");
     benchmark(20000, dotproduct_reduce_proc_call, "dotproduct_reduce_proc_call");
     benchmark(20000, dotproduct_unrolled_2_1, "dotproduct_unrolled_2_1");
     benchmark(20000, dotproduct_unrolled_2_2, "dotproduct_unrolled_2_2");
