@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "dotproduct.c"
+#include "vec/dotproduct.c"
 
 void benchmark(long n, data_t (*f)(vec_ptr, vec_ptr), char* func_name) {
   clock_t baseline_start, baseline_end, test_start, test_end;
