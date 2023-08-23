@@ -7,6 +7,7 @@ extern data_t dotproduct_reduce_len_call(vec_ptr, vec_ptr);
 extern data_t dotproduct_reduce_proc_call(vec_ptr, vec_ptr);
 extern data_t dotproduct_unrolled_2_1(vec_ptr, vec_ptr);
 extern data_t dotproduct_unrolled_2_2(vec_ptr, vec_ptr);
+extern data_t dotproduct_unrolled_6_6(vec_ptr, vec_ptr);
 
 void setUp(void) {
 }
@@ -23,6 +24,7 @@ void test_empty(void) {
   TEST_ASSERT_EQUAL(0, dotproduct_reduce_proc_call(u, v));
   TEST_ASSERT_EQUAL(0, dotproduct_unrolled_2_1(u, v));
   TEST_ASSERT_EQUAL(0, dotproduct_unrolled_2_2(u, v));
+  TEST_ASSERT_EQUAL(0, dotproduct_unrolled_6_6(u, v));
 
   free_vec(u);
   free_vec(v);
@@ -44,6 +46,7 @@ void test_basic(void) {
   TEST_ASSERT_EQUAL(32, dotproduct_reduce_proc_call(u, v));
   TEST_ASSERT_EQUAL(32, dotproduct_unrolled_2_1(u, v));
   TEST_ASSERT_EQUAL(32, dotproduct_unrolled_2_2(u, v));
+  TEST_ASSERT_EQUAL(32, dotproduct_unrolled_6_6(u, v));
 
   free_vec(u);
   free_vec(v);
@@ -65,6 +68,7 @@ void test_longer(void) {
   TEST_ASSERT_EQUAL(expected, dotproduct_reduce_proc_call(u, v));
   TEST_ASSERT_EQUAL(expected, dotproduct_unrolled_2_1(u, v));
   TEST_ASSERT_EQUAL(expected, dotproduct_unrolled_2_2(u, v));
+  TEST_ASSERT_EQUAL(expected, dotproduct_unrolled_6_6(u, v));
 
   free_vec(u);
   free_vec(v);

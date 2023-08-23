@@ -41,4 +41,5 @@ int main() {
     benchmark(20000, dotproduct_reduce_proc_call, "dotproduct_reduce_proc_call");
     benchmark(20000, dotproduct_unrolled_2_1, "dotproduct_unrolled_2_1");
     benchmark(20000, dotproduct_unrolled_2_2, "dotproduct_unrolled_2_2");
+    benchmark(20000, dotproduct_unrolled_6_6, "dotproduct_unrolled_6_6");
 }
