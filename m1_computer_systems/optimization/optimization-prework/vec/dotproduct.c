@@ -74,9 +74,5 @@ data_t dotproduct_unrolled_2_2(vec_ptr u, vec_ptr v) {
       sum1 += u_start[i] * v_start[i];
    }
 
-   for (; i < len ; i++ ) {
-      sum1 += u_start[i] * v_start[i];
-   }
-
    return sum1 + sum2;
 }
