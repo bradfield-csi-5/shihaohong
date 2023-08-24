@@ -1,5 +1,5 @@
-// typedef float data_t;
-typedef long data_t;
+typedef float data_t;
+// typedef long data_t;
 
 /* Create abstract data type for vector */
 typedef struct {

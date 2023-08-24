@@ -101,16 +101,44 @@ data_t dotproduct_unrolled_6_6(vec_ptr u, vec_ptr v) {
    return sum1 + sum2 + sum3 + sum4 + sum5 + sum6;
 }
 
-data_t dotproduct_unrolled_10_10(vec_ptr u, vec_ptr v) {
+data_t dotproduct_unrolled_8_8(vec_ptr u, vec_ptr v) {
    data_t sum1 = 0, sum2 = 0, sum3 = 0, sum4 = 0, sum5 = 0, sum6 = 0;
-   data_t sum7 = 0, sum8 = 0, sum9 = 0, sum10 = 0;
+   data_t sum7 = 0, sum8 = 0;
    long len = vec_length(u);
-   long limit = len-5;
+   long limit = len-7;
    long i = 0;
    data_t *u_start, *v_start;
    u_start = get_vec_start(u);
    v_start = get_vec_start(v);
-   for (; i < limit; i += 6) { // we can assume both vectors are same length
+   for (; i < limit; i += 8) { // we can assume both vectors are same length
+      sum1 += u_start[i] * v_start[i];
+      sum2 += u_start[i + 1] * v_start[i + 1];
+      sum3 += u_start[i + 2] * v_start[i + 2];
+      sum4 += u_start[i + 3] * v_start[i + 3];
+      sum5 += u_start[i + 4] * v_start[i + 4];
+      sum6 += u_start[i + 5] * v_start[i + 5];
+      sum7 += u_start[i + 6] * v_start[i + 6];
+      sum8 += u_start[i + 7] * v_start[i + 7];
+   }
+
+   for (; i < len; i++) {
+      sum1 += u_start[i] * v_start[i];
+   }
+
+   return sum1 + sum2 + sum3 + sum4 + sum5 + sum6 + sum7 + sum8;
+}
+
+
+data_t dotproduct_unrolled_10_10(vec_ptr u, vec_ptr v) {
+   data_t sum1 = 0, sum2 = 0, sum3 = 0, sum4 = 0, sum5 = 0, sum6 = 0;
+   data_t sum7 = 0, sum8 = 0, sum9 = 0, sum10 = 0;
+   long len = vec_length(u);
+   long limit = len-9;
+   long i = 0;
+   data_t *u_start, *v_start;
+   u_start = get_vec_start(u);
+   v_start = get_vec_start(v);
+   for (; i < limit; i += 10) { // we can assume both vectors are same length
       sum1 += u_start[i] * v_start[i];
       sum2 += u_start[i + 1] * v_start[i + 1];
       sum3 += u_start[i + 2] * v_start[i + 2];

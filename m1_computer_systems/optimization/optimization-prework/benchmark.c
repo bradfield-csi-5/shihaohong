@@ -42,5 +42,6 @@ int main() {
     benchmark(20000, dotproduct_unrolled_2_1, "dotproduct_unrolled_2_1");
     benchmark(20000, dotproduct_unrolled_2_2, "dotproduct_unrolled_2_2");
     benchmark(20000, dotproduct_unrolled_6_6, "dotproduct_unrolled_6_6");
+    benchmark(20000, dotproduct_unrolled_8_8, "dotproduct_unrolled_8_8");
     benchmark(20000, dotproduct_unrolled_10_10, "dotproduct_unrolled_10_10");
 }
