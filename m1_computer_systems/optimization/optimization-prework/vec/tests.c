@@ -7,6 +7,7 @@ extern data_t dotproduct_reduce_len_call(vec_ptr, vec_ptr);
 extern data_t dotproduct_reduce_proc_call(vec_ptr, vec_ptr);
 extern data_t dotproduct_unrolled_2_1(vec_ptr, vec_ptr);
 extern data_t dotproduct_unrolled_2_2(vec_ptr, vec_ptr);
+extern data_t dotproduct_unrolled_4_4(vec_ptr, vec_ptr);
 extern data_t dotproduct_unrolled_6_6(vec_ptr, vec_ptr);
 extern data_t dotproduct_unrolled_8_8(vec_ptr, vec_ptr);
 extern data_t dotproduct_unrolled_10_10(vec_ptr, vec_ptr);
@@ -26,6 +27,7 @@ void test_empty(void) {
   TEST_ASSERT_EQUAL(0, dotproduct_reduce_proc_call(u, v));
   TEST_ASSERT_EQUAL(0, dotproduct_unrolled_2_1(u, v));
   TEST_ASSERT_EQUAL(0, dotproduct_unrolled_2_2(u, v));
+  TEST_ASSERT_EQUAL(0, dotproduct_unrolled_4_4(u, v));
   TEST_ASSERT_EQUAL(0, dotproduct_unrolled_6_6(u, v));
   TEST_ASSERT_EQUAL(0, dotproduct_unrolled_8_8(u, v));
   TEST_ASSERT_EQUAL(0, dotproduct_unrolled_10_10(u, v));
@@ -50,6 +52,7 @@ void test_basic(void) {
   TEST_ASSERT_EQUAL(32, dotproduct_reduce_proc_call(u, v));
   TEST_ASSERT_EQUAL(32, dotproduct_unrolled_2_1(u, v));
   TEST_ASSERT_EQUAL(32, dotproduct_unrolled_2_2(u, v));
+  TEST_ASSERT_EQUAL(32, dotproduct_unrolled_4_4(u, v));
   TEST_ASSERT_EQUAL(32, dotproduct_unrolled_6_6(u, v));
   TEST_ASSERT_EQUAL(32, dotproduct_unrolled_8_8(u, v));
   TEST_ASSERT_EQUAL(32, dotproduct_unrolled_10_10(u, v));
@@ -74,6 +77,7 @@ void test_longer(void) {
   TEST_ASSERT_EQUAL(expected, dotproduct_reduce_proc_call(u, v));
   TEST_ASSERT_EQUAL(expected, dotproduct_unrolled_2_1(u, v));
   TEST_ASSERT_EQUAL(expected, dotproduct_unrolled_2_2(u, v));
+  TEST_ASSERT_EQUAL(expected, dotproduct_unrolled_4_4(u, v));
   TEST_ASSERT_EQUAL(expected, dotproduct_unrolled_6_6(u, v));
   TEST_ASSERT_EQUAL(expected, dotproduct_unrolled_8_8(u, v));
   TEST_ASSERT_EQUAL(expected, dotproduct_unrolled_10_10(u, v));
