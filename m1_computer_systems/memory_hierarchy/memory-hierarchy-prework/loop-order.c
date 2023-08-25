@@ -1,8 +1,7 @@
 // #include <stdio.h>
 // #include <time.h>
 
-  /*
-
+/*
 Two different ways to loop over an array of arrays.
 
 Spotted at:
@@ -61,9 +60,10 @@ Time taken (option_one): 0.083s
 Diff: 0.055s = 55ms
 */
 
+int x[4000][4000];
+
 void option_one() {
   int i, j;
-  static int x[4000][4000];
   for (i = 0; i < 4000; i++) {
     for (j = 0; j < 4000; j++) {
       x[i][j] = i + j;
@@ -73,7 +73,6 @@ void option_one() {
 
 void option_two() {
   int i, j;
-  static int x[4000][4000];
   for (i = 0; i < 4000; i++) {
     for (j = 0; j < 4000; j++) {
       x[j][i] = i + j;
@@ -82,8 +81,9 @@ void option_two() {
 }
 
 int main() {
-  // option_one();
-  option_two();
+  option_one();
+  // option_two();
+  int v = x[1][1];
 
   // clock_t start, stop;
   // double time;
