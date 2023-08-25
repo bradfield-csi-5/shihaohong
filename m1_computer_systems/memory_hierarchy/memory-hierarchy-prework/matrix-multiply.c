@@ -39,8 +39,8 @@ void fast_matrix_multiply(double **C, double **A, double **B, int a_rows,
   for (ti = 0; ti < a_rows; ti += TILE_SIZE) {
     i_end = min(ti + TILE_SIZE, a_rows);
 
-    for (tj = 0; tj < b_cols; tj += TILE_SIZE / 2) {
-      j_end = min(tj + TILE_SIZE / 2, b_cols);
+    for (tj = 0; tj < b_cols; tj += TILE_SIZE) {
+      j_end = min(tj + TILE_SIZE, b_cols);
 
       for (tk = 0; tk < a_cols; tk += TILE_SIZE) {
         k_end = min(tk + TILE_SIZE, a_cols);
