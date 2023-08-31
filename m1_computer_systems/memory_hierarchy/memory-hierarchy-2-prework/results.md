@@ -13,7 +13,7 @@ BenchmarkMetrics/Average_age-8         	     970	   1241247 ns/op
 BenchmarkMetrics/Average_age-8         	   12778	     93183 ns/op
 ```
 
-### Loop unrolling (4 accumulators)
+### Loop unrolling (4x4)
 
 - (not cache technique) Takes advantage of CPU's functional units
 
@@ -30,6 +30,11 @@ BenchmarkMetrics/Average_payment-8     	      60	  18061158 ns/op
 ### Using Payments slice
 ```sh
 BenchmarkMetrics/Average_payment-8     	     913	   1288673 ns/op
+```
+
+### Loop unrolling (4x4)
+```sh
+BenchmarkMetrics/Average_payment-8     	    1267	    942685 ns/op
 ```
 
 ### Payment slice instead of User map
