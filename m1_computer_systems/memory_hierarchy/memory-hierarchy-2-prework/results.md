@@ -2,11 +2,6 @@
 ### Initial Results
 
 ```sh
-go test -bench=.
-goos: darwin
-goarch: amd64
-pkg: metrics.com/m/v2
-cpu: VirtualApple @ 2.50GHz
 BenchmarkMetrics/Average_age-8         	     970	   1241247 ns/op
 ```
 
@@ -15,13 +10,7 @@ BenchmarkMetrics/Average_age-8         	     970	   1241247 ns/op
 - (cache technique) Removes iteration over bigger struct data type (can fit more into one cache line)
 
 ```sh
-go test -bench=.
-goos: darwin
-goarch: amd64
-pkg: metrics.com/m/v2
-cpu: VirtualApple @ 2.50GHz
 BenchmarkMetrics/Average_age-8         	   12778	     93183 ns/op
-PASS
 ```
 
 ### Loop unrolling (4 accumulators)
@@ -29,10 +18,24 @@ PASS
 - (not cache technique) Takes advantage of CPU's functional units
 
 ```sh
-go test -bench=.
-goos: darwin
-goarch: amd64
-pkg: metrics.com/m/v2
-cpu: VirtualApple @ 2.50GHz
 BenchmarkMetrics/Average_age-8         	   44096	     27215 ns/op
+```
+
+## AveragePaymentAmount
+### Initial Results
+```sh
+BenchmarkMetrics/Average_payment-8     	      60	  18061158 ns/op
+```
+
+### Using Payments slice
+```sh
+BenchmarkMetrics/Average_payment-8     	     913	   1288673 ns/op
+```
+
+### Payment slice instead of User map
+
+## StdDevPaymentAmount
+### Initial Results
+```sh
+BenchmarkMetrics/Payment_stddev-8      	      32	  37313669 ns/op
 ```
