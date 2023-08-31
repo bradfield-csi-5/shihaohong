@@ -10,7 +10,9 @@ cpu: VirtualApple @ 2.50GHz
 BenchmarkMetrics/Average_age-8         	     970	   1241247 ns/op
 ```
 
-### remove use of sets, use slices
+### Use slices instead of maps
+
+- (cache technique) Removes iteration over bigger struct data type (can fit more into one cache line)
 
 ```sh
 go test -bench=.
@@ -23,6 +25,8 @@ PASS
 ```
 
 ### Loop unrolling (4 accumulators)
+
+- (not cache technique) Takes advantage of CPU's functional units
 
 ```sh
 go test -bench=.
