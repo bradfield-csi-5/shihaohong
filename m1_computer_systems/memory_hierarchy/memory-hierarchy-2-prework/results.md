@@ -37,7 +37,25 @@ BenchmarkMetrics/Average_payment-8     	     913	   1288673 ns/op
 BenchmarkMetrics/Average_payment-8     	    1267	    942685 ns/op
 ```
 
-### Payment slice instead of User map
+### DollarAmount without time (not very effective)
+```sh
+BenchmarkMetrics/Average_payment-8     	    1218	    944587 ns/op
+```
+
+### Calculate dollar vs cents separately (slightly effective)
+```sh
+BenchmarkMetrics/Average_payment-8     	    1284	    924113 ns/op
+```
+
+### Using uint32
+```sh
+BenchmarkMetrics/Average_payment-8     	    1786	    667641 ns/op
+```
+
+### Using cents
+```sh
+BenchmarkMetrics/Average_payment-8     	    3050	    400566 ns/op
+```
 
 ## StdDevPaymentAmount
 ### Initial Results
@@ -54,3 +72,29 @@ BenchmarkMetrics/Payment_stddev-8      	      56	  20556248 ns/op
 ```sh
 BenchmarkMetrics/Payment_stddev-8      	      56	  19661426 ns/op
 ```
+
+### DollarAmount without time (mildly effective here) -- AveragePaymentAmount
+```sh
+BenchmarkMetrics/Payment_stddev-8      	      58	  19286717 ns/op
+```
+
+### Optimized stddev calculation
+```sh
+BenchmarkMetrics/Payment_stddev-8      	     781	   1602426 ns/op
+```
+
+### Using uint32
+```sh
+BenchmarkMetrics/Payment_stddev-8      	    1215	    979863 ns/op
+```
+
+### Using cents
+```sh
+BenchmarkMetrics/Payment_stddev-8      	    1252	    956452 ns/op
+```
+
+### Loop unrolling (2x2)
+```sh
+BenchmarkMetrics/Payment_stddev-8      	    1930	    608944 ns/op
+```
+

@@ -17,13 +17,9 @@ type Address struct {
 	zip         int
 }
 
-type DollarAmount struct {
-	dollars, cents uint64
-}
-
 type Payment struct {
-	amount DollarAmount
-	time   time.Time
+	cents uint32
+	time  time.Time
 }
 
 type User struct {
@@ -38,7 +34,7 @@ func AverageAge(ages []float64) float64 {
 	count := len(ages)
 	age1, age2, age3, age4 := 0.0, 0.0, 0.0, 0.0
 	i := 0
-	for ; i < count-4; i += 4 {
+	for ; i < count-3; i += 4 {
 		age1 += ages[i]
 		age2 += ages[i+1]
 		age3 += ages[i+2]
@@ -52,37 +48,41 @@ func AverageAge(ages []float64) float64 {
 	return (age1 + age2 + age3 + age4) / float64(count)
 }
 
-func AveragePaymentAmount(amount []DollarAmount) float64 {
-	count := len(amount)
+func AveragePaymentAmount(amounts []uint32) float64 {
+	count := len(amounts)
 	amount1, amount2, amount3, amount4 := 0.0, 0.0, 0.0, 0.0
 	i := 0
-	for ; i < count-4; i += 4 {
-		amount1 += float64(amount[i].dollars) + float64(amount[i].cents)/100
-		amount2 += float64(amount[i+1].dollars) + float64(amount[i+1].cents)/100
-		amount3 += float64(amount[i+2].dollars) + float64(amount[i+2].cents)/100
-		amount4 += float64(amount[i+3].dollars) + float64(amount[i+3].cents)/100
+	for ; i < count-3; i += 4 {
+		amount1 += float64(amounts[i])
+		amount2 += float64(amounts[i+1])
+		amount3 += float64(amounts[i+2])
+		amount4 += float64(amounts[i+3])
 	}
-
 	for ; i < count; i++ {
-		amount1 += float64(amount[i].dollars) + float64(amount[i].cents)/100
+		amount1 += float64(amounts[i])
 	}
 
-	return (amount1 + amount2 + amount3 + amount4) / float64(count)
+	return ((amount1 + amount2 + amount3 + amount4) * 0.01 / float64(count))
 }
 
 // Compute the standard deviation of payment amounts
-func StdDevPaymentAmount(users UserMap, amount []DollarAmount, userCount int) float64 {
-	mean := AveragePaymentAmount(amount)
-	squaredDiffs, count := 0.0, 0.0
-	for _, u := range users {
-		for _, p := range u.payments {
-			count += 1
-			amount := float64(p.amount.dollars) + float64(p.amount.cents)/100
-			diff := amount - mean
-			squaredDiffs += diff * diff
-		}
+func StdDevPaymentAmount(amounts []uint32) float64 {
+	sumSquare, sum := float64(0), float64(0)
+	sumSquare2, sum2 := float64(0), float64(0)
+	count := len(amounts)
+	i := 0
+	for ; i < count-1; i += 2 {
+		x := float64(amounts[i]) * 0.01
+		sumSquare += x * x
+		sum += x
+		x2 := float64(amounts[i+1]) * 0.01
+		sumSquare2 += x2 * x2
+		sum2 += x2
 	}
-	return math.Sqrt(squaredDiffs / count)
+
+	avgSquare := (sumSquare + sumSquare2) / float64(count)
+	avg := (sum + sum2) / float64(count)
+	return math.Sqrt(avgSquare - avg*avg)
 }
 
 func LoadData() UserMap {
@@ -121,7 +121,7 @@ func LoadData() UserMap {
 		paymentCents, _ := strconv.Atoi(line[0])
 		datetime, _ := time.Parse(time.RFC3339, line[1])
 		users[UserId(userId)].payments = append(users[UserId(userId)].payments, Payment{
-			DollarAmount{uint64(paymentCents / 100), uint64(paymentCents % 100)},
+			uint32(paymentCents),
 			datetime,
 		})
 	}
