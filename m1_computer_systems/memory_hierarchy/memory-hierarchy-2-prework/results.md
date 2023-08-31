@@ -44,3 +44,13 @@ BenchmarkMetrics/Average_payment-8     	    1267	    942685 ns/op
 ```sh
 BenchmarkMetrics/Payment_stddev-8      	      32	  37313669 ns/op
 ```
+
+### Using Payments slice -- AveragePaymentAmount
+```sh
+BenchmarkMetrics/Payment_stddev-8      	      56	  20556248 ns/op
+```
+
+### Loop unrolling (4x4) -- AveragePaymentAmount
+```sh
+BenchmarkMetrics/Payment_stddev-8      	      56	  19661426 ns/op
+```
