@@ -7,11 +7,15 @@ import (
 
 func BenchmarkMetrics(b *testing.B) {
 	users := LoadData()
+	totalAge := make([]float64, 0, len(users))
+	for _, u := range users {
+		totalAge = append(totalAge, float64(u.age))
+	}
 
 	b.Run("Average age", func(b *testing.B) {
 		actual := 0.0
 		for n := 0; n < b.N; n++ {
-			actual = AverageAge(users)
+			actual = AverageAge(totalAge)
 		}
 		expected := 59.62
 		if math.IsNaN(actual) || math.Abs(actual-expected) > 0.01 {
