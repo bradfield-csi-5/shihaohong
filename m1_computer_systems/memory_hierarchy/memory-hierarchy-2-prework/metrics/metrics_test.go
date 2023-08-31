@@ -9,10 +9,12 @@ func BenchmarkMetrics(b *testing.B) {
 	users := LoadData()
 	userCount := len(users)
 	age := make([]float64, 0, len(users))
-	payments := make([]Payment, 0, len(users))
+	dollarAmounts := make([]DollarAmount, 0)
 	for _, u := range users {
 		age = append(age, float64(u.age))
-		payments = append(payments, u.payments...)
+		for _, payments := range u.payments {
+			dollarAmounts = append(dollarAmounts, payments.amount)
+		}
 	}
 
 	b.Run("Average age", func(b *testing.B) {
@@ -29,7 +31,7 @@ func BenchmarkMetrics(b *testing.B) {
 	b.Run("Average payment", func(b *testing.B) {
 		actual := 0.0
 		for n := 0; n < b.N; n++ {
-			actual = AveragePaymentAmount(payments)
+			actual = AveragePaymentAmount(dollarAmounts)
 		}
 
 		expected := 499850.559
@@ -41,7 +43,7 @@ func BenchmarkMetrics(b *testing.B) {
 	b.Run("Payment stddev", func(b *testing.B) {
 		actual := 0.0
 		for n := 0; n < b.N; n++ {
-			actual = StdDevPaymentAmount(users, payments, userCount)
+			actual = StdDevPaymentAmount(users, dollarAmounts, userCount)
 		}
 		expected := 288684.850
 		if math.IsNaN(actual) || math.Abs(actual-expected) > 0.01 {

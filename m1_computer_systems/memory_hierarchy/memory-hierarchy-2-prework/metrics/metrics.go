@@ -52,27 +52,27 @@ func AverageAge(ages []float64) float64 {
 	return (age1 + age2 + age3 + age4) / float64(count)
 }
 
-func AveragePaymentAmount(payments []Payment) float64 {
-	count := len(payments)
+func AveragePaymentAmount(amount []DollarAmount) float64 {
+	count := len(amount)
 	amount1, amount2, amount3, amount4 := 0.0, 0.0, 0.0, 0.0
 	i := 0
 	for ; i < count-4; i += 4 {
-		amount1 += float64(payments[i].amount.dollars) + float64(payments[i].amount.cents)/100
-		amount2 += float64(payments[i+1].amount.dollars) + float64(payments[i+1].amount.cents)/100
-		amount3 += float64(payments[i+2].amount.dollars) + float64(payments[i+2].amount.cents)/100
-		amount4 += float64(payments[i+3].amount.dollars) + float64(payments[i+3].amount.cents)/100
+		amount1 += float64(amount[i].dollars) + float64(amount[i].cents)/100
+		amount2 += float64(amount[i+1].dollars) + float64(amount[i+1].cents)/100
+		amount3 += float64(amount[i+2].dollars) + float64(amount[i+2].cents)/100
+		amount4 += float64(amount[i+3].dollars) + float64(amount[i+3].cents)/100
 	}
 
 	for ; i < count; i++ {
-		amount1 += float64(payments[i].amount.dollars) + float64(payments[i].amount.cents)/100
+		amount1 += float64(amount[i].dollars) + float64(amount[i].cents)/100
 	}
 
 	return (amount1 + amount2 + amount3 + amount4) / float64(count)
 }
 
 // Compute the standard deviation of payment amounts
-func StdDevPaymentAmount(users UserMap, payments []Payment, userCount int) float64 {
-	mean := AveragePaymentAmount(payments)
+func StdDevPaymentAmount(users UserMap, amount []DollarAmount, userCount int) float64 {
+	mean := AveragePaymentAmount(amount)
 	squaredDiffs, count := 0.0, 0.0
 	for _, u := range users {
 		for _, p := range u.payments {
