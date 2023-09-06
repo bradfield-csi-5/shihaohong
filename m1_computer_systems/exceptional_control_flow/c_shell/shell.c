@@ -12,7 +12,7 @@
 #define MAXARGS 128
 
 volatile sig_atomic_t pid;
-jmp_buf buf;
+jmp_buf j_buf;
 
 void eval(char *cmdline, sigset_t *mask, sigset_t *prev);
 void parseline(char *buf, char **argv);
@@ -35,7 +35,7 @@ int main () {
     sigaddset(&mask, SIGCHLD);
 
     while (1) {
-        setjmp(buf);
+        setjmp(j_buf);
         printf("> ");
         fgets(cmdline, MAXLINE, stdin);
         if (feof(stdin)) {
@@ -66,12 +66,10 @@ void eval(char *cmdline, sigset_t *mask, sigset_t *prev) {
 	    }
 	}
 
-    pid = 0;
     while (!pid) {
         sigsuspend(prev);
     }
     sigprocmask(SIG_SETMASK, prev, NULL); /* Unblock SIGCHLD */
-    pid = 0;
 }
 
 void parseline(char *buf, char **argv) {
@@ -126,8 +124,11 @@ void sigchld_handler(int s) {
 }
 
 void sigint_handler(int s) {
+    if (pid == 0) {
+        exit(0);
+    }
     printf("\n");
-    longjmp(buf, 0);
+    longjmp(j_buf, 0);
 }
 
 void unix_error(char *msg) {
