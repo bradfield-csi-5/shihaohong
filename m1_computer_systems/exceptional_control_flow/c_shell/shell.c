@@ -62,10 +62,10 @@ void eval(char *cmdline, sigset_t *mask, sigset_t *prev) {
 	}
 
     pid = 0;
+    while (!pid) {
+        sigsuspend(prev);
+    }
     sigprocmask(SIG_SETMASK, prev, NULL); /* Unblock SIGCHLD */
-
-    // wait for foreground task to complete (wasteful)
-    while (!pid) {}
 }
 
 void parseline(char *buf, char **argv) {
