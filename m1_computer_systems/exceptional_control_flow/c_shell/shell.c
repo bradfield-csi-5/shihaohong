@@ -11,7 +11,7 @@
 #define MAXLINE 2048
 #define MAXARGS 128
 
-volatile sig_atomic_t pid;
+volatile sig_atomic_t pid = -1;
 jmp_buf j_buf;
 
 void eval(char *cmdline, sigset_t *mask, sigset_t *prev);
@@ -34,8 +34,8 @@ int main () {
     sigemptyset(&mask);
     sigaddset(&mask, SIGCHLD);
 
+    setjmp(j_buf);
     while (1) {
-        setjmp(j_buf);
         printf("> ");
         fgets(cmdline, MAXLINE, stdin);
         if (feof(stdin)) {
@@ -66,7 +66,8 @@ void eval(char *cmdline, sigset_t *mask, sigset_t *prev) {
 	    }
 	}
 
-    while (!pid) {
+    pid = -1;
+    while (pid == -1) {
         sigsuspend(prev);
     }
     sigprocmask(SIG_SETMASK, prev, NULL); /* Unblock SIGCHLD */
