@@ -59,7 +59,7 @@ void eval(char *cmdline, sigset_t *mask, sigset_t *prev) {
 	    return;   /* Ignore empty lines */
     }
 
-    if (!builtin_command(argv)) {
+    if (builtin_command(argv)) {
         return;
     }
 
