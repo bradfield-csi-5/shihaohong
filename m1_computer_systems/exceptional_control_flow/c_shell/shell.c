@@ -1,4 +1,5 @@
 #include <errno.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,15 +10,25 @@
 #define MAXLINE 2048
 #define MAXARGS 128
 
-void eval(char *cmdline);
+volatile sig_atomic_t pid;
+
+void eval(char *cmdline, sigset_t *mask, sigset_t *prev);
 void parseline(char *buf, char **argv);
 void unix_error(char *msg);
+void sigchld_handler(int s);
+
+typedef void handler_t(int);
+handler_t *Signal(int signum, handler_t *handler);
 
 // "Skeleton" taken from CSAPP: https://github.com/mofaph/csapp/blob/master/code/ecf/shellex.c
 // Goal: Use skeleton and add pieces incrementally to understand overall structure of the program.
 // Eventually, see if there are pieces I'd want to customize/implement
 int main () {
     char cmdline[MAXLINE];
+    sigset_t mask, prev;
+    Signal(SIGCHLD, sigchld_handler);
+    sigemptyset(&mask);
+    sigaddset(&mask, SIGCHLD);
 
     while (1) {
         printf("> ");
@@ -27,14 +38,13 @@ int main () {
             exit(0);
         }
 
-        eval(cmdline);
+        eval(cmdline, &mask, &prev);
     }
 }
 
-void eval(char *cmdline) {
+void eval(char *cmdline, sigset_t *mask, sigset_t *prev) {
     char *argv[MAXARGS]; /* Argument list execve() */
     char buf[MAXLINE];   /* Holds modified command line */
-    pid_t pid;           /* Process id */
 
     strcpy(buf, cmdline);
     parseline(buf, argv);
@@ -43,17 +53,19 @@ void eval(char *cmdline) {
 	    return;   /* Ignore empty lines */
     }
 
+    sigprocmask(SIG_BLOCK, mask, prev);
 	if ((pid = fork()) == 0) {   /* Child runs user job */
 	    if (execve(argv[0], argv, NULL) < 0) {
             printf("%s: Command not found.\n", argv[0]);
             exit(0);
 	    }
-
-	    int status;
-	    if (waitpid(pid, &status, 0) < 0) {
-		    unix_error("waitfg: waitpid error");
-        }
 	}
+
+    pid = 0;
+    sigprocmask(SIG_SETMASK, prev, NULL); /* Unblock SIGCHLD */
+
+    // wait for foreground task to complete (wasteful)
+    while (!pid) {}
 }
 
 void parseline(char *buf, char **argv) {
@@ -87,6 +99,24 @@ void parseline(char *buf, char **argv) {
     if (argc == 0) {
     	return;
     }
+}
+
+handler_t *Signal(int signum, handler_t *handler) {
+    struct sigaction action, old_action;
+
+    action.sa_handler = handler;
+    sigemptyset(&action.sa_mask); /* block sigs of type being handled */
+    action.sa_flags = SA_RESTART; /* restart syscalls if possible */
+
+    if (sigaction(signum, &action, &old_action) < 0)
+        unix_error("Signal error");
+    return (old_action.sa_handler);
+}
+
+void sigchld_handler(int s) {
+    int olderrno = errno;
+    pid = waitpid(-1, NULL, 0);
+    errno = olderrno;
 }
 
 void unix_error(char *msg) {
