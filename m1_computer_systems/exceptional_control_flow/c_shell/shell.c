@@ -16,9 +16,10 @@ jmp_buf j_buf;
 
 void eval(char *cmdline, sigset_t *mask, sigset_t *prev);
 void parseline(char *buf, char **argv);
-void unix_error(char *msg);
+int builtin_command(char **argv);
 void sigchld_handler(int s);
 void sigint_handler(int s);
+void unix_error(char *msg);
 
 typedef void handler_t(int);
 handler_t *Signal(int signum, handler_t *handler);
@@ -56,6 +57,10 @@ void eval(char *cmdline, sigset_t *mask, sigset_t *prev) {
 
     if (argv[0] == NULL) {
 	    return;   /* Ignore empty lines */
+    }
+
+    if (!builtin_command(argv)) {
+        return;
     }
 
     sigprocmask(SIG_BLOCK, mask, prev);
@@ -104,6 +109,14 @@ void parseline(char *buf, char **argv) {
     if (argc == 0) {
     	return;
     }
+}
+
+int builtin_command(char **argv) {
+    if (!strcmp(argv[0], "quit") || !strcmp(argv[0], "exit")) {
+        printf("Goodbye~\n");
+	    exit(0);
+    }
+    return 0;                     /* Not a builtin command */
 }
 
 handler_t *Signal(int signum, handler_t *handler) {
