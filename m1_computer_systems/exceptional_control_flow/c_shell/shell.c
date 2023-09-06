@@ -2,6 +2,7 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <setjmp.h>
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -11,11 +12,13 @@
 #define MAXARGS 128
 
 volatile sig_atomic_t pid;
+jmp_buf buf;
 
 void eval(char *cmdline, sigset_t *mask, sigset_t *prev);
 void parseline(char *buf, char **argv);
 void unix_error(char *msg);
 void sigchld_handler(int s);
+void sigint_handler(int s);
 
 typedef void handler_t(int);
 handler_t *Signal(int signum, handler_t *handler);
@@ -27,10 +30,12 @@ int main () {
     char cmdline[MAXLINE];
     sigset_t mask, prev;
     Signal(SIGCHLD, sigchld_handler);
+    Signal(SIGINT, sigint_handler);
     sigemptyset(&mask);
     sigaddset(&mask, SIGCHLD);
 
     while (1) {
+        setjmp(buf);
         printf("> ");
         fgets(cmdline, MAXLINE, stdin);
         if (feof(stdin)) {
@@ -66,6 +71,7 @@ void eval(char *cmdline, sigset_t *mask, sigset_t *prev) {
         sigsuspend(prev);
     }
     sigprocmask(SIG_SETMASK, prev, NULL); /* Unblock SIGCHLD */
+    pid = 0;
 }
 
 void parseline(char *buf, char **argv) {
@@ -117,6 +123,11 @@ void sigchld_handler(int s) {
     int olderrno = errno;
     pid = waitpid(-1, NULL, 0);
     errno = olderrno;
+}
+
+void sigint_handler(int s) {
+    printf("\n");
+    longjmp(buf, 0);
 }
 
 void unix_error(char *msg) {
