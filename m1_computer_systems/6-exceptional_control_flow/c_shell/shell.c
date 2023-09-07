@@ -147,8 +147,6 @@ handler_t *Signal(int signum, handler_t *handler) {
     return (old_action.sa_handler);
 }
 
-// TODO(shihaohong): should handle multiple stopped/terminated
-// subprocesses
 void sigchld_handler(int s) {
     sig_atomic_t temp_pid = 0;
     int olderrno = errno;
