@@ -15,7 +15,7 @@ volatile sig_atomic_t pid = -1;
 jmp_buf j_buf;
 
 void eval(char *cmdline, sigset_t *mask, sigset_t *prev);
-void parseline(char *buf, char **argv);
+int parseline(char *buf, char **argv);
 int builtin_command(char **argv);
 void sigchld_handler(int s);
 void sigint_handler(int s);
@@ -51,9 +51,10 @@ int main () {
 void eval(char *cmdline, sigset_t *mask, sigset_t *prev) {
     char *argv[MAXARGS]; /* Argument list execve() */
     char buf[MAXLINE];   /* Holds modified command line */
+    int bg;              /* Should the job run in bg or fg? */
 
     strcpy(buf, cmdline);
-    parseline(buf, argv);
+    bg = parseline(buf, argv);
 
     if (argv[0] == NULL) {
 	    return;   /* Ignore empty lines */
@@ -71,16 +72,22 @@ void eval(char *cmdline, sigset_t *mask, sigset_t *prev) {
 	    }
 	}
 
-    pid = -1;
-    while (pid == -1) {
-        sigsuspend(prev);
+    if (!bg) {
+        pid = -1;
+        while (pid == -1) {
+            sigsuspend(prev);
+        }
+    } else {
+        printf("%d %s", pid, cmdline);
     }
+
     sigprocmask(SIG_SETMASK, prev, NULL); /* Unblock SIGCHLD */
 }
 
-void parseline(char *buf, char **argv) {
+int parseline(char *buf, char **argv) {
     char *delim;         /* Points to first space delimiter */
     int argc;            /* Number of args */
+    int bg;              /* Background job? */
 
     buf[strlen(buf)-1] = ' ';  /* Replace trailing '\n' with space */
     while (*buf && (*buf == ' ')) {
@@ -107,8 +114,14 @@ void parseline(char *buf, char **argv) {
     argv[argc] = NULL;
 
     if (argc == 0) {
-    	return;
+    	return 1;
     }
+
+    /* Should the job run in the background? */
+    if ((bg = (*argv[argc-1] == '&')) != 0) {
+    	argv[--argc] = NULL;
+    }
+    return bg;
 }
 
 int builtin_command(char **argv) {
@@ -131,13 +144,25 @@ handler_t *Signal(int signum, handler_t *handler) {
     return (old_action.sa_handler);
 }
 
+// TODO(shihaohong): should handle multiple stopped/terminated
+// subprocesses
 void sigchld_handler(int s) {
+    sig_atomic_t temp_pid = 0;
     int olderrno = errno;
-    pid = waitpid(-1, NULL, 0);
+    // when subprocesses stop/terminate,
+    // parent process pid set to pid of last
+    // terminated subprocess
+    while((temp_pid = waitpid(-1, NULL, 0)) > 0) {
+        if (pid != temp_pid) {
+            pid = temp_pid;
+        }
+    }
     errno = olderrno;
 }
 
 void sigint_handler(int s) {
+    // exit if its a subprocess
+    // fork() yields pid = 0 for the subprocess
     if (pid == 0) {
         exit(0);
     }
