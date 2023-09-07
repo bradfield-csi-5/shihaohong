@@ -66,6 +66,9 @@ void eval(char *cmdline, sigset_t *mask, sigset_t *prev) {
 
     sigprocmask(SIG_BLOCK, mask, prev);
 	if ((pid = fork()) == 0) {   /* Child runs user job */
+        if (bg) {
+            setpgid(0, 0);
+        }
 	    if (execve(argv[0], argv, NULL) < 0) {
             printf("%s: Command not found.\n", argv[0]);
             exit(0);
