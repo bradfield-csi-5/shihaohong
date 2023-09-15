@@ -3,10 +3,40 @@ package main
 import (
 	"encoding/binary"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
 )
+
+const GlobalHeaderLength = 24
+
+var ErrInvalidHeaderLength = errors.New("invalid header length")
+
+type GlobalHeader struct {
+	MagicNumber      []byte
+	MajorVersion     uint16
+	MinorVersion     uint16
+	TimezoneAccuracy uint32
+	TimezoneOffset   uint32
+	SnapshotLength   uint32
+	LinkType         uint32
+}
+
+func NewGlobalHeader(bs []byte) (GlobalHeader, error) {
+	if len(bs) != GlobalHeaderLength {
+		return GlobalHeader{}, ErrInvalidHeaderLength
+	}
+	return GlobalHeader{
+		MagicNumber:      bs[:4],
+		MajorVersion:     binary.LittleEndian.Uint16(bs[4:6]),
+		MinorVersion:     binary.LittleEndian.Uint16(bs[6:8]),
+		TimezoneAccuracy: binary.LittleEndian.Uint32(bs[8:12]),
+		TimezoneOffset:   binary.LittleEndian.Uint32(bs[12:16]),
+		SnapshotLength:   binary.LittleEndian.Uint32(bs[16:20]),
+		LinkType:         binary.LittleEndian.Uint32(bs[20:24]),
+	}, nil
+}
 
 const filename = "net.cap"
 
@@ -16,14 +46,17 @@ func main() {
 	fi, err := os.ReadFile(filename)
 	fiLen := len(fi)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	fp := 0
 	// capture file header
-	globalHeader := fi[:24]
-	fmt.Println("global header val: 0x" + hex.EncodeToString(globalHeader))
-	fp += 24
+	_, err = NewGlobalHeader(fi[:GlobalHeaderLength])
+	if err != nil {
+		panic(err)
+	}
+	// fmt.Println("0x" + hex.EncodeToString(globalHeader.MagicNumber)) // 0xd4c3b2a1
+	fp += GlobalHeaderLength
 
 	packets := make([]byte, 0, fiLen)
 	// capture packet header
