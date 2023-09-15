@@ -9,7 +9,10 @@ import (
 	"strconv"
 )
 
-const GlobalHeaderLength = 24
+const (
+	GlobalHeaderLength = 24
+	PacketHeaderLength = 16
+)
 
 var ErrInvalidHeaderLength = errors.New("invalid header length")
 
@@ -38,11 +41,29 @@ func NewGlobalHeader(bs []byte) (GlobalHeader, error) {
 	}, nil
 }
 
-const filename = "net.cap"
+type PacketHeader struct {
+	TimestampSec      uint32
+	TimestampMsNs     uint32
+	Length            uint32
+	UntruncatedLength uint32
+}
+
+func NewPacketHeader(bs []byte) (PacketHeader, error) {
+	if len(bs) != PacketHeaderLength {
+		return PacketHeader{}, ErrInvalidHeaderLength
+	}
+	return PacketHeader{
+		TimestampSec:      binary.LittleEndian.Uint32(bs[0:4]),
+		TimestampMsNs:     binary.LittleEndian.Uint32(bs[4:8]),
+		Length:            binary.LittleEndian.Uint32(bs[8:12]),
+		UntruncatedLength: binary.LittleEndian.Uint32(bs[12:16]),
+	}, nil
+}
 
 func main() {
 	// TODO: stream file rather than loading entire file
 	// to memory
+	const filename = "net.cap"
 	fi, err := os.ReadFile(filename)
 	fiLen := len(fi)
 	if err != nil {
@@ -61,27 +82,21 @@ func main() {
 	packets := make([]byte, 0, fiLen)
 	// capture packet header
 	for fp < fiLen {
-		packetHeader := fi[fp : fp+16]
-		fp += 16
-		// fmt.Println("packet header val: 0x" + hex.EncodeToString(packetHeader))
-
-		packetLen := packetHeader[8:12]
-		_, packetLenDec := parsePacketLen(packetLen)
-
-		untruncatedPacketLen := (packetHeader[12:])
-		_, untruncatedPacketLenDec := parsePacketLen(untruncatedPacketLen)
-
-		if packetLenDec != untruncatedPacketLenDec {
-			fmt.Printf("packetLen: %v\n", packetLenDec)
-			fmt.Printf("untruncatedPacketLen: %v\n", untruncatedPacketLenDec)
+		packetHeader, err := NewPacketHeader(fi[fp : fp+PacketHeaderLength])
+		if err != nil {
+			panic(err)
+		}
+		fp += PacketHeaderLength
+		if packetHeader.Length != packetHeader.UntruncatedLength {
+			fmt.Printf("packetLen: %v\n", packetHeader.Length)
+			fmt.Printf("untruncatedPacketLen: %v\n", packetHeader.UntruncatedLength)
 			panic("something's wrong packetLen != untruncatedPacketLen")
 		}
 
-		packets = append(packets, fi[fp:fp+packetLenDec]...)
-		fp += packetLenDec
+		packets = append(packets, fi[fp:fp+int(packetHeader.Length)]...)
+		fp += int(packetHeader.Length)
 	}
 
-	fmt.Println("packets val: 0x" + hex.EncodeToString(packets[:80]))
 	dumpEthernetPacketData(packets)
 }
 
@@ -95,22 +110,5 @@ func dumpEthernetPacketData(arr []byte) {
 	err = binary.Write(f, binary.LittleEndian, arr)
 	if err != nil {
 		panic("Write failed")
-	}
-}
-
-func parsePacketLen(s []byte) (hexStr string, decInt int) {
-	reverseByteOrdering(s) // fix byte ordering
-	hexStr = hex.EncodeToString(s)
-	dec, err := strconv.ParseInt(hexStr, 16, 32)
-	if err != nil {
-		panic(err)
-	}
-	decInt = int(dec)
-	return
-}
-
-func reverseByteOrdering(s []byte) {
-	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
-		s[i], s[j] = s[j], s[i]
 	}
 }
