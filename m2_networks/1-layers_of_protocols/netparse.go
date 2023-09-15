@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/binary"
 	"encoding/hex"
 	"fmt"
 	"os"
@@ -24,12 +25,12 @@ func main() {
 	fmt.Println("global header val: 0x" + hex.EncodeToString(globalHeader))
 	fp += 24
 
-	packetCount := 0
+	packets := make([]byte, 0, fiLen)
 	// capture packet header
 	for fp < fiLen {
 		packetHeader := fi[fp : fp+16]
 		fp += 16
-		fmt.Println("packet header val: 0x" + hex.EncodeToString(packetHeader))
+		// fmt.Println("packet header val: 0x" + hex.EncodeToString(packetHeader))
 
 		packetLen := packetHeader[8:12]
 		_, packetLenDec := parsePacketLen(packetLen)
@@ -43,13 +44,25 @@ func main() {
 			panic("something's wrong packetLen != untruncatedPacketLen")
 		}
 
-		// TODO: process packet payload
-
-		packetCount++
+		packets = append(packets, fi[fp:fp+packetLenDec]...)
 		fp += packetLenDec
 	}
 
-	fmt.Printf("packet count: %v\n", packetCount) // to confirm packet count
+	fmt.Println("packets val: 0x" + hex.EncodeToString(packets[:80]))
+	dumpEthernetPacketData(packets)
+}
+
+func dumpEthernetPacketData(arr []byte) {
+	f, err := os.Create("ethernet.bin")
+	if err != nil {
+		panic("Couldn't open file")
+	}
+	defer f.Close()
+
+	err = binary.Write(f, binary.LittleEndian, arr)
+	if err != nil {
+		panic("Write failed")
+	}
 }
 
 func parsePacketLen(s []byte) (hexStr string, decInt int) {
