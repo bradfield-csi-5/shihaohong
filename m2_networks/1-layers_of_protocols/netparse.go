@@ -174,10 +174,15 @@ func main() {
 		}
 
 		fmt.Printf("==== packet %d ====\n", packetCount)
+		fmt.Println("ETHERNET HEADER DETAILS:")
 		fmt.Printf("MAC address src: %s\n", eh.MACSrc.String())
 		fmt.Printf("MAC address dest: %s\n", eh.MACDest.String())
+		fmt.Println("IP HEADER DETAILS:")
 		fmt.Printf("IP address src: %s\n", ih.SourceAddress.String())
 		fmt.Printf("IP address dest: %s\n", ih.DestinationAddress.String())
+		fmt.Printf("datagram length: %d\n", ih.TotalLength)
+		fmt.Printf("IP header length: %d\n", ih.IHL) // constant 20, no optional headers
+		fmt.Printf("protocol: %d\n", ih.Protocol)    // UDP protocol
 
 		fp += int(packetHeader.Length)
 		packetCount++
