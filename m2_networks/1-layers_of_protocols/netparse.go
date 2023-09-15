@@ -31,40 +31,36 @@ func main() {
 		fp += 16
 		fmt.Println("packet header val: 0x" + hex.EncodeToString(packetHeader))
 
-		// parse len
 		packetLen := packetHeader[8:12]
-		reverseByteOrdering(packetLen) // fix byte ordering
-		packetLenHex := hex.EncodeToString(packetLen)
-		packetLenDec, err := strconv.ParseInt(packetLenHex, 16, 32)
-		if err != nil {
-			fmt.Println(err)
-		}
-		// fmt.Printf("packetLenHex: %s\n", packetLenHex)
-		// fmt.Printf("packetLenDec: %v\n", packetLenDec)
+		_, packetLenDec := parsePacketLen(packetLen)
 
 		untruncatedPacketLen := (packetHeader[12:])
-		reverseByteOrdering(untruncatedPacketLen) // fix byte ordering
-		untruncatedPacketLenHex := hex.EncodeToString(untruncatedPacketLen)
-		untruncatedPacketLenDec, err := strconv.ParseInt(untruncatedPacketLenHex, 16, 32)
-		if err != nil {
-			fmt.Println(err)
-		}
-		// fmt.Printf("untruncatedPacketLenHex: %s\n", untruncatedPacketLenHex)
-		// fmt.Printf("untruncatedPacketLenDec: %v\n", untruncatedPacketLenDec)
+		_, untruncatedPacketLenDec := parsePacketLen(untruncatedPacketLen)
 
 		if packetLenDec != untruncatedPacketLenDec {
-			fmt.Println("something's wrong packetLen != untruncatedPacketLen")
 			fmt.Printf("packetLen: %v\n", packetLenDec)
 			fmt.Printf("untruncatedPacketLen: %v\n", untruncatedPacketLenDec)
+			panic("something's wrong packetLen != untruncatedPacketLen")
 		}
 
 		// TODO: process packet payload
 
 		packetCount++
-		fp += int(packetLenDec)
+		fp += packetLenDec
 	}
 
-	// fmt.Printf("packet count: %v\n", packetCount) // to confirm packet count
+	fmt.Printf("packet count: %v\n", packetCount) // to confirm packet count
+}
+
+func parsePacketLen(s []byte) (hexStr string, decInt int) {
+	reverseByteOrdering(s) // fix byte ordering
+	hexStr = hex.EncodeToString(s)
+	dec, err := strconv.ParseInt(hexStr, 16, 32)
+	if err != nil {
+		panic(err)
+	}
+	decInt = int(dec)
+	return
 }
 
 func reverseByteOrdering(s []byte) {
