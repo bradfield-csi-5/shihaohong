@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"sort"
 )
 
 const (
@@ -123,6 +124,40 @@ func NewIPv4Header(bs []byte) (IPv4Header, error) {
 	}, nil
 }
 
+// TODO: check if URG set and add urgent pointer
+type TCPHeader struct {
+	SourcePort            uint16
+	DestinationPort       uint16
+	SequenceNumber        uint32
+	AcknowledgementNumber uint32
+	DataOffset            uint8 // in bytes
+	Reserved              uint8 // only 4 bits
+	Flags                 uint8
+	WindowSize            uint16
+	Checksum              uint16
+}
+
+// Assume URG not set (manually checked)
+// TODO: handle urgent pointer dynamically
+func NewTCPHeader(bs []byte) (TCPHeader, error) {
+	return TCPHeader{
+		SourcePort:            binary.BigEndian.Uint16(bs[:2]),
+		DestinationPort:       binary.BigEndian.Uint16(bs[2:4]),
+		SequenceNumber:        binary.BigEndian.Uint32(bs[4:8]),
+		AcknowledgementNumber: binary.BigEndian.Uint32(bs[8:12]),
+		DataOffset:            (bs[12] & 0xf0) >> 2, // >> 4 to get the value, then << 2 to get in 4-byte words
+		Reserved:              bs[12] & 0xf,
+		Flags:                 bs[13],
+		WindowSize:            binary.BigEndian.Uint16(bs[14:16]),
+		Checksum:              binary.BigEndian.Uint16(bs[16:18]),
+	}, nil
+}
+
+type HTTPPacket struct {
+	Sequence uint32
+	Data     []byte
+}
+
 func main() {
 	// TODO: stream file rather than loading entire file
 	// to memory
@@ -142,9 +177,11 @@ func main() {
 	// fmt.Println("0x" + hex.EncodeToString(globalHeader.MagicNumber)) // 0xd4c3b2a1
 	fp += GlobalHeaderLength
 
-	packets := make([]byte, 0, fiLen)
 	fmt.Println("processing packets")
 	packetCount := 0
+
+	httpPackets := make([]HTTPPacket, 0, fiLen)
+	seqCheck := make(map[uint32]struct{})
 	for fp < fiLen {
 		packetHeader, err := NewPacketHeader(fi[fp : fp+PacketHeaderLength])
 		if err != nil {
@@ -157,10 +194,8 @@ func main() {
 			panic("something's wrong packetLen != untruncatedPacketLen")
 		}
 
-		packets = append(packets, fi[fp:fp+int(packetHeader.Length)]...)
-
-		ip := fp + EthernetHeaderLength
-		eh, err := NewEthernetHeader(fi[fp:ip])
+		bp := fp + EthernetHeaderLength
+		eh, err := NewEthernetHeader(fi[fp:bp])
 		if err != nil {
 			panic(err)
 		}
@@ -168,7 +203,14 @@ func main() {
 		// Assumes IPv4 header.
 		// TODO: Can modify to check for both and
 		// branch it, but that's too much work for now
-		ih, err := NewIPv4Header(fi[ip:])
+		ih, err := NewIPv4Header(fi[bp:])
+		if err != nil {
+			panic(err)
+		}
+
+		bp += int(ih.IHL)
+
+		tcph, err := NewTCPHeader(fi[bp:])
 		if err != nil {
 			panic(err)
 		}
@@ -181,25 +223,48 @@ func main() {
 		fmt.Printf("IP address src: %s\n", ih.SourceAddress.String())
 		fmt.Printf("IP address dest: %s\n", ih.DestinationAddress.String())
 		fmt.Printf("datagram length: %d\n", ih.TotalLength)
-		fmt.Printf("IP header length: %d\n", ih.IHL) // constant 20, no optional headers
-		fmt.Printf("protocol: %d\n", ih.Protocol)    // UDP protocol
+		fmt.Println("TCP HEADER DETAILS:")
+		fmt.Printf("SourcePort: %d\n", tcph.SourcePort)
+		fmt.Printf("DestinationPort: %d\n", tcph.DestinationPort)
+		fmt.Printf("TransportHeaderLength: %d\n", tcph.DataOffset)
+		fmt.Printf("SequenceNumber: %d\n", tcph.SequenceNumber)
+
+		seq := tcph.SequenceNumber
+		if tcph.SourcePort == 80 {
+			if _, ok := seqCheck[seq]; ok {
+				// skip is somehow duplicate packet sequence found
+				fp += int(packetHeader.Length)
+				continue
+			}
+			seqCheck[seq] = struct{}{}
+			httpPackets = append(httpPackets, HTTPPacket{
+				Sequence: seq,
+				Data:     fi[bp+int(tcph.DataOffset):],
+			})
+		}
 
 		fp += int(packetHeader.Length)
 		packetCount++
 	}
 
-	dumpEthernetPacketData(packets)
-}
+	sort.Slice(httpPackets, func(i, j int) bool {
+		return httpPackets[i].Sequence < httpPackets[j].Sequence
+	})
 
-func dumpEthernetPacketData(arr []byte) {
-	f, err := os.Create("ethernet.bin")
+	// open output file
+	fo, err := os.Create("output.jpeg")
 	if err != nil {
-		panic("Couldn't open file")
+		panic(err)
 	}
-	defer f.Close()
+	defer func() {
+		if err := fo.Close(); err != nil {
+			panic(err)
+		}
+	}()
 
-	err = binary.Write(f, binary.LittleEndian, arr)
-	if err != nil {
-		panic("Write failed")
+	for _, httpPacket := range httpPackets {
+		if _, err := fo.Write(httpPacket.Data); err != nil {
+			panic(err)
+		}
 	}
 }
