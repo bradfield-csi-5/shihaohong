@@ -229,6 +229,7 @@ func main() {
 		fmt.Printf("TransportHeaderLength: %d\n", tcph.DataOffset)
 		fmt.Printf("SequenceNumber: %d\n", tcph.SequenceNumber)
 
+		// TODO: recheck everything from this point forwards
 		seq := tcph.SequenceNumber
 		if tcph.SourcePort == 80 {
 			if _, ok := seqCheck[seq]; ok {
