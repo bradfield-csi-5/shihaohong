@@ -216,21 +216,20 @@ func main() {
 			panic(err)
 		}
 
-		fmt.Printf("==== packet %d ====\n", packetCount)
-		fmt.Println("ETHERNET HEADER DETAILS:")
-		fmt.Printf("MAC address src: %s\n", eh.MACSrc.String())
-		fmt.Printf("MAC address dest: %s\n", eh.MACDest.String())
-		fmt.Println("IP HEADER DETAILS:")
-		fmt.Printf("IP address src: %s\n", ih.SourceAddress.String())
-		fmt.Printf("IP address dest: %s\n", ih.DestinationAddress.String())
-		fmt.Printf("datagram length: %d\n", ih.TotalLength)
-		fmt.Println("TCP HEADER DETAILS:")
-		fmt.Printf("SourcePort: %d\n", tcph.SourcePort)
-		fmt.Printf("DestinationPort: %d\n", tcph.DestinationPort)
-		fmt.Printf("TransportHeaderLength: %d\n", tcph.DataOffset)
-		fmt.Printf("SequenceNumber: %d\n", tcph.SequenceNumber)
+		// fmt.Printf("==== packet %d ====\n", packetCount)
+		// fmt.Println("ETHERNET HEADER DETAILS:")
+		// fmt.Printf("MAC address src: %s\n", eh.MACSrc.String())
+		// fmt.Printf("MAC address dest: %s\n", eh.MACDest.String())
+		// fmt.Println("IP HEADER DETAILS:")
+		// fmt.Printf("IP address src: %s\n", ih.SourceAddress.String())
+		// fmt.Printf("IP address dest: %s\n", ih.DestinationAddress.String())
+		// fmt.Printf("datagram length: %d\n", ih.TotalLength)
+		// fmt.Println("TCP HEADER DETAILS:")
+		// fmt.Printf("SourcePort: %d\n", tcph.SourcePort)
+		// fmt.Printf("DestinationPort: %d\n", tcph.DestinationPort)
+		// fmt.Printf("TransportHeaderLength: %d\n", tcph.DataOffset)
+		// fmt.Printf("SequenceNumber: %d\n", tcph.SequenceNumber)
 
-		// TODO: recheck everything from this point forwards
 		seq := tcph.SequenceNumber
 		if tcph.SourcePort == 80 {
 			if _, ok := seqCheck[seq]; ok {
