@@ -196,7 +196,7 @@ func main() {
 		}
 
 		bp := fp + EthernetHeaderLength
-		eh, err := NewEthernetHeader(fi[fp:bp])
+		_, err = NewEthernetHeader(fi[fp:bp])
 		if err != nil {
 			panic(err)
 		}
