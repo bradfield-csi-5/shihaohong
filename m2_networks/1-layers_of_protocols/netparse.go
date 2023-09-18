@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/binary"
 	"errors"
 	"fmt"
@@ -240,7 +241,7 @@ func main() {
 			seqCheck[seq] = struct{}{}
 			httpPackets = append(httpPackets, HTTPPacket{
 				Sequence: seq,
-				Data:     fi[bp+int(tcph.DataOffset):],
+				Data:     fi[bp+int(tcph.DataOffset) : fp+int(packetHeader.Length)],
 			})
 		}
 
@@ -252,20 +253,16 @@ func main() {
 		return httpPackets[i].Sequence < httpPackets[j].Sequence
 	})
 
-	// open output file
-	fo, err := os.Create("output.jpeg")
-	if err != nil {
-		panic(err)
+	httpData := make([]byte, 0)
+	for _, p := range httpPackets {
+		httpData = append(httpData, p.Data...)
 	}
-	defer func() {
-		if err := fo.Close(); err != nil {
-			panic(err)
-		}
-	}()
 
-	for _, httpPacket := range httpPackets {
-		if _, err := fo.Write(httpPacket.Data); err != nil {
-			panic(err)
-		}
-	}
+	// Split into HTTP header and body
+	parts := bytes.SplitN(httpData, []byte{'\r', '\n', '\r', '\n'}, 2)
+
+	// Write output
+	out, _ := os.Create("output.jpeg")
+	out.Write(parts[1])
+	out.Close()
 }
