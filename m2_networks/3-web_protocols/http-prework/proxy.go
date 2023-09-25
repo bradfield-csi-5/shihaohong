@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net"
+	"strings"
 
 	"golang.org/x/sys/unix"
 )
@@ -14,11 +15,17 @@ const (
 )
 
 var SERVER_HOST = [4]byte{127, 0, 0, 1}
+var cache = NewCache()
 
 func check(e error) {
 	if e != nil {
 		panic(e)
 	}
+}
+
+func parseRequestPath(req string) string {
+	s := strings.Split(req, "\r\n")
+	return s[0]
 }
 
 func main() {
@@ -53,8 +60,23 @@ func handleConnection(fd int) {
 	if n <= 0 {
 		return
 	}
+
 	fmt.Println("Request from client:")
 	fmt.Println(string(buf[:n]))
+
+	fmt.Println("Request path:")
+	fmt.Println(parseRequestPath(string(buf[:n])))
+
+	path := parseRequestPath(string(buf[:n]))
+
+	res := cache.Get(path)
+	if len(res) > 0 {
+		fmt.Println("Cached:")
+		fmt.Println(string(res))
+		err = unix.Send(fd, res, 0)
+		check(err)
+		return
+	}
 
 	// socket to the other port
 	// TODO: figure out how to implement this using unix.Socket()
@@ -76,6 +98,7 @@ func handleConnection(fd int) {
 
 	fmt.Println("Response from server:")
 	fmt.Println(string(fwdBuf[:fwdN]))
+	cache.Put(path, fwdBuf[:fwdN])
 
 	err = unix.Send(fd, fwdBuf, 0)
 	check(err)
