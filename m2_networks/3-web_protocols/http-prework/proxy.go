@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	SERVER_PORT      = 3000
+	SERVER_PORT      = 3001
 	SERVER_BACKLOG   = 10
 	DST_FORWARD_PORT = 9000
 )
