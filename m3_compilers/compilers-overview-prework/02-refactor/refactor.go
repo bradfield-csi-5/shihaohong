@@ -63,8 +63,8 @@ func SortFunctions(src string) (string, error) {
 	sort.Sort(ByName(funcs))
 	f.Decls = rest
 	for i := 0; i < len(funcs); i++ {
-		it := funcs[i]
-		f.Decls = append(f.Decls, dst.Decl(&it))
+		var it dst.Decl = &funcs[i]
+		f.Decls = append(f.Decls, it)
 	}
 
 	buf := new(bytes.Buffer)
