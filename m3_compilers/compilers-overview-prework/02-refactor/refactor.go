@@ -43,7 +43,7 @@ func (a ByName) Less(i, j int) bool { return a[i].Name.Name < a[j].Name.Name }
 func SortFunctions(src string) (string, error) {
 	f, err := decorator.Parse(src)
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
 	funcs := make([]dst.FuncDecl, 0)
@@ -70,7 +70,7 @@ func SortFunctions(src string) (string, error) {
 	buf := new(bytes.Buffer)
 	err = decorator.Fprint(buf, f)
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
 	return buf.String(), nil
