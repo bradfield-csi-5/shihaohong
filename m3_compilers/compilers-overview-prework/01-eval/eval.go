@@ -16,13 +16,14 @@ func Evaluate(expr ast.Expr) (int, error) {
 	case *ast.BasicLit:
 		return handleBasicLit(x)
 	case *ast.BinaryExpr:
-		return calculateBinaryExpr(x)
+		// root of ParenExpr is always BinaryExpr
+		return handleBinaryExpr(x)
 	default:
 		return 0, errors.New("undefined ast expression")
 	}
 }
 
-func calculateBinaryExpr(be *ast.BinaryExpr) (int, error) {
+func handleBinaryExpr(be *ast.BinaryExpr) (int, error) {
 	xval, yval := 0, 0
 	switch xExpr := be.X.(type) {
 	case *ast.BasicLit:
@@ -33,7 +34,14 @@ func calculateBinaryExpr(be *ast.BinaryExpr) (int, error) {
 		}
 	case *ast.BinaryExpr:
 		var err error
-		xval, err = calculateBinaryExpr(xExpr)
+		xval, err = handleBinaryExpr(xExpr)
+		if err != nil {
+			return 0, err
+		}
+	case *ast.ParenExpr:
+		var err error
+		xval, err = handleParen(xExpr.X)
+		print(xval)
 		if err != nil {
 			return 0, err
 		}
@@ -48,7 +56,13 @@ func calculateBinaryExpr(be *ast.BinaryExpr) (int, error) {
 		}
 	case *ast.BinaryExpr:
 		var err error
-		yval, err = calculateBinaryExpr(yExpr)
+		yval, err = handleBinaryExpr(yExpr)
+		if err != nil {
+			return 0, err
+		}
+	case *ast.ParenExpr:
+		var err error
+		yval, err = handleParen(yExpr.X)
 		if err != nil {
 			return 0, err
 		}
@@ -68,6 +82,21 @@ func calculateBinaryExpr(be *ast.BinaryExpr) (int, error) {
 	}
 }
 
+// X can be a binary expr, basic lit, or another paren
+func handleParen(expr ast.Expr) (int, error) {
+	switch x := expr.(type) {
+	case *ast.BasicLit:
+		return handleBasicLit(x)
+	case *ast.BinaryExpr:
+		return handleBinaryExpr(x)
+	case *ast.ParenExpr:
+		return handleParen(x.X)
+	default:
+		return 0, errors.New("undefined ast expression")
+	}
+
+}
+
 func handleBasicLit(bl *ast.BasicLit) (int, error) {
 	val, err := strconv.Atoi(bl.Value)
 	if err != nil {
@@ -77,7 +106,7 @@ func handleBasicLit(bl *ast.BasicLit) (int, error) {
 }
 
 func main() {
-	expr, err := parser.ParseExpr("1 + 1")
+	expr, err := parser.ParseExpr("((3 - 4)) * 2")
 	if err != nil {
 		log.Fatal(err)
 	}
