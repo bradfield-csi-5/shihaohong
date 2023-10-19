@@ -24,19 +24,31 @@ func Evaluate(expr ast.Expr) (int, error) {
 
 func calculateBinaryExpr(be *ast.BinaryExpr) (int, error) {
 	xval, yval := 0, 0
-	switch xbl := be.X.(type) {
+	switch xExpr := be.X.(type) {
 	case *ast.BasicLit:
 		var err error
-		xval, err = handleBasicLit(xbl)
+		xval, err = handleBasicLit(xExpr)
+		if err != nil {
+			return 0, err
+		}
+	case *ast.BinaryExpr:
+		var err error
+		xval, err = calculateBinaryExpr(xExpr)
 		if err != nil {
 			return 0, err
 		}
 	}
 
-	switch ybl := be.Y.(type) {
+	switch yExpr := be.Y.(type) {
 	case *ast.BasicLit:
 		var err error
-		yval, err = handleBasicLit(ybl)
+		yval, err = handleBasicLit(yExpr)
+		if err != nil {
+			return 0, err
+		}
+	case *ast.BinaryExpr:
+		var err error
+		yval, err = calculateBinaryExpr(yExpr)
 		if err != nil {
 			return 0, err
 		}
