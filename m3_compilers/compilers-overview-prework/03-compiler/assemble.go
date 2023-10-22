@@ -64,7 +64,7 @@ func assemble(asm string) ([]byte, error) {
 		} else if size, ok := instructionSize[op]; ok {
 			addr += size
 		} else {
-			return nil, fmt.Errorf("Invalid operation: %v", op)
+			return nil, fmt.Errorf("invalid operation: %v", op)
 		}
 	}
 
@@ -113,7 +113,7 @@ func assemble(asm string) ([]byte, error) {
 			// Do nothing
 
 		default:
-			return nil, fmt.Errorf("Invalid operation: %v", parts[0])
+			return nil, fmt.Errorf("invalid operation: %v", parts[0])
 		}
 	}
 	return bc, nil

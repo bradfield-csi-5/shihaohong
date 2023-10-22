@@ -35,7 +35,6 @@ const (
 // 00 01 02 03 04 05 06 07 08 09 0a 0b 0c ... df e0 e1 ... ff
 // __ __ __ __ __ __ __ __ __ __ __ __ __ ... __ __ __ ... __
 // ^==DATA===============^ ^==INSTRUCTIONS=====^ ^==STACK===^
-//
 func execute(memory []byte) error {
 	var (
 		pc byte = 0x08 // program counter
@@ -95,7 +94,7 @@ func execute(memory []byte) error {
 			}
 
 		default:
-			return 0, fmt.Errorf("Invalid binary operation: 02%02x", op)
+			return 0, fmt.Errorf("invalid binary operation: 02%02x", op)
 		}
 	}
 
@@ -171,7 +170,7 @@ func execute(memory []byte) error {
 			}
 
 		default:
-			return fmt.Errorf("Invalid opcode: 0x%02x", op)
+			return fmt.Errorf("invalid opcode: 0x%02x", op)
 		}
 	}
 }

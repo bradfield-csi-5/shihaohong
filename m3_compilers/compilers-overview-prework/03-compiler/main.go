@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+	"go/ast"
+	"go/parser"
+	"go/token"
 	"log"
 )
 
@@ -41,15 +44,25 @@ func runVM(bytecode []byte, x, y byte) (byte, error) {
 const src string = `package f
 
 func f(x, y byte) byte {
-	return 2 * (x + 3) * (y + 4)
+	return x + y
 }`
 
 func main() {
+	// Create the AST by parsing src.
+	fset := token.NewFileSet() // positions are relative to fset
+	f, err := parser.ParseFile(fset, "", src, 0)
+	if err != nil {
+		panic(err)
+	}
+
+	// Print the AST.
+	ast.Print(fset, f)
+
 	bytecode, err := generateBytecode(src)
 	if err != nil {
 		log.Fatal(err)
 	}
-	result, err := runVM(bytecode, 1, 1)
+	result, err := runVM(bytecode, 4, 5)
 	if err != nil {
 		log.Fatal(err)
 	}
