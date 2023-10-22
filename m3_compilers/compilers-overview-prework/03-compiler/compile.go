@@ -14,19 +14,19 @@ import (
 func Evaluate(expr ast.Expr, data map[string]int) (string, error) {
 	switch x := expr.(type) {
 	case *ast.BasicLit:
-		fmt.Printf("basic lit\n")
+		// fmt.Printf("basic lit\n")
 		return handleBasicLit(x)
 	case *ast.IndexExpr:
-		fmt.Printf("index expr\n")
+		// fmt.Printf("index expr\n")
 		return "", nil
 	case *ast.BinaryExpr:
-		fmt.Printf("binary expr\n")
+		// fmt.Printf("binary expr\n")
 		return handleBinaryExpr(x, data)
 	case *ast.Ident:
-		fmt.Printf("ident\n")
+		// fmt.Printf("ident\n")
 		return handleIdentExpr(x, data)
-	// case *ast.ParenExpr:
-	// 	return Evaluate(x.X, data)
+	case *ast.ParenExpr:
+		return Evaluate(x.X, data)
 	default:
 		return "", errors.New("undefined ast expression")
 	}
@@ -47,10 +47,10 @@ func handleBinaryExpr(be *ast.BinaryExpr, data map[string]int) (string, error) {
 		return xval + yval + "add\n", nil
 	case "-":
 		return xval + yval + "sub\n", nil
-	// case "*":
-	// 	return xval * yval, nil
-	// case "/":
-	// 	return xval / yval, nil
+	case "*":
+		return xval + yval + "mul\n", nil
+	case "/":
+		return xval + yval + "div\n", nil
 	default:
 		return "", errors.New("undefined operation")
 	}
@@ -87,7 +87,7 @@ BodyLoop:
 	for _, node := range node.Body.List {
 		switch n := node.(type) {
 		case *ast.ReturnStmt:
-			// fmt.Printf("ASDF%+v\n", n)
+			// fmt.Printf("ASDF%+v\n", n.Results)
 
 			val, err := Evaluate(n.Results[0], data)
 			if err != nil {

@@ -19,9 +19,9 @@ var testCases = []testCase{
 		name: "Constant",
 		src: `package f
 
-func f(x, y byte) byte {
-	return 5
-}`,
+	func f(x, y byte) byte {
+		return 5
+	}`,
 		examples: []funcExample{
 			{1, 1, 5},
 			{2, 1, 5},
@@ -32,27 +32,27 @@ func f(x, y byte) byte {
 		name: "Parameters",
 		src: `package f
 
-func f(x, y byte) byte {
-	return x + y
-}`,
+	func f(x, y byte) byte {
+		return x + y
+	}`,
 		examples: []funcExample{
 			{1, 1, 2},
 			{2, 3, 5},
 			{5, 8, 13},
 		},
 	},
-	// 	{
-	// 		name: "More Complicated Expression",
-	// 		src: `package f
+	{
+		name: "More Complicated Expression",
+		src: `package f
 
-	// func f(x, y byte) byte {
-	// 	return 2 * (x + 3) * (y + 4)
-	// }`,
-	// 		examples: []funcExample{
-	// 			{1, 1, 40},
-	// 			{2, 2, 60},
-	// 		},
-	// 	},
+	func f(x, y byte) byte {
+		return 2 * (x + 3) * (y + 4)
+	}`,
+		examples: []funcExample{
+			{1, 1, 40},
+			{2, 2, 60},
+		},
+	},
 	// 	{
 	// 		name: "Multiple Statements",
 	// 		src: `package f

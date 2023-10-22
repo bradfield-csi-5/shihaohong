@@ -44,7 +44,7 @@ func runVM(bytecode []byte, x, y byte) (byte, error) {
 const src string = `package f
 
 func f(x, y byte) byte {
-	return x + y
+	return 2 * (x + 3) * (y + 4)
 }`
 
 func main() {
