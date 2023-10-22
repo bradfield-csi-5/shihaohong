@@ -82,10 +82,33 @@ func compile(node *ast.FuncDecl) (string, error) {
 	data := make(map[string]int)
 	data[node.Type.Params.List[0].Names[0].Name] = 1
 	data[node.Type.Params.List[0].Names[1].Name] = 2
+	dataNext := len(data) + 1
 
 BodyLoop:
 	for _, node := range node.Body.List {
 		switch n := node.(type) {
+		case *ast.AssignStmt:
+			if lhs, ok := n.Lhs[0].(*ast.Ident); ok {
+				lhsLoc, ok := data[lhs.Name]
+				if !ok {
+					if dataNext >= 8 {
+						return "", errors.New("not enough data space")
+					}
+					data[lhs.Name] = dataNext
+					lhsLoc = dataNext
+					dataNext++
+				}
+
+				rhsRes, err := Evaluate(n.Rhs[0], data)
+				if err != nil {
+					return "", err
+				}
+
+				asm += rhsRes
+				asm += "pop " + strconv.Itoa(lhsLoc) + "\n"
+			} else {
+				return "", errors.New("unexpected lhs")
+			}
 		case *ast.ReturnStmt:
 			// fmt.Printf("ASDF%+v\n", n.Results)
 

@@ -53,20 +53,34 @@ var testCases = []testCase{
 			{2, 2, 60},
 		},
 	},
-	// 	{
-	// 		name: "Multiple Statements",
-	// 		src: `package f
+	{
+		name: "Multiple Statements",
+		src: `package f
 
-	// func f(x, y byte) byte {
-	// 	x = x + 3
-	// 	y = y + 4
-	// 	return 2 * x * y
-	// }`,
-	// 		examples: []funcExample{
-	// 			{1, 1, 40},
-	// 			{2, 2, 60},
-	// 		},
-	// 	},
+	func f(x, y byte) byte {
+		x = x + 3
+		y = y + 4
+		return 2 * x * y
+	}`,
+		examples: []funcExample{
+			{1, 1, 40},
+			{2, 2, 60},
+		},
+	},
+	{
+		name: "Multiple Statements, New Vars",
+		src: `package f
+
+	func f(x, y byte) byte {
+		a := x + 3
+		b := y + 4
+		return 2 * a * b
+	}`,
+		examples: []funcExample{
+			{1, 1, 40},
+			{2, 2, 60},
+		},
+	},
 	// 	{
 	// 		name: "If/Else",
 	// 		src: `package f
