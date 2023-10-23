@@ -81,25 +81,25 @@ var testCases = []testCase{
 			{2, 2, 60},
 		},
 	},
-	// 	{
-	// 		name: "If/Else",
-	// 		src: `package f
+	{
+		name: "If/Else",
+		src: `package f
 
-	// func f(x, y byte) byte {
-	// 	if x == 0 {
-	// 		return y
-	// 	} else {
-	// 		return x
-	// 	}
-	// }`,
-	// 		examples: []funcExample{
-	// 			{0, 2, 2},
-	// 			{1, 2, 1},
-	// 		},
-	// 	},
-	// 	{
-	// 		name: "Local Variables 1",
-	// 		src: `package f
+	func f(x, y byte) byte {
+		if x == 0 {
+			return y
+		} else {
+			return x
+		}
+	}`,
+		examples: []funcExample{
+			{0, 2, 2},
+			{1, 2, 1},
+		},
+	},
+	// {
+	// 	name: "Local Variables 1",
+	// 	src: `package f
 
 	// func f(x, y byte) byte {
 	// 	var z byte
@@ -107,11 +107,11 @@ var testCases = []testCase{
 	// 	z = z * z
 	// 	return z
 	// }`,
-	// 		examples: []funcExample{
-	// 			{1, 2, 9},
-	// 			{2, 3, 25},
-	// 		},
+	// 	examples: []funcExample{
+	// 		{1, 2, 9},
+	// 		{2, 3, 25},
 	// 	},
+	// },
 	// 	{
 	// 		name: "Local Variables 2",
 	// 		src: `package f

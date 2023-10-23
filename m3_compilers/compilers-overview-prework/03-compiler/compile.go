@@ -7,6 +7,11 @@ import (
 	"strconv"
 )
 
+// TODO: pass around?
+var labelCounter = 0
+var labelTag = "label_"
+var labelEndTag = "label_end_"
+
 // Given an expression containing only int types, evaluate
 // the expression and return the result.
 //
@@ -51,6 +56,8 @@ func handleBinaryExpr(be *ast.BinaryExpr, data map[string]int) (string, error) {
 		return xval + yval + "mul\n", nil
 	case "/":
 		return xval + yval + "div\n", nil
+	case "==":
+		return fmt.Sprintf("%s%seq\n", xval, yval), nil
 	default:
 		return "", errors.New("undefined operation")
 	}
@@ -80,23 +87,36 @@ func compile(node *ast.FuncDecl) (string, error) {
 	asm := ""
 	// maps memory to var name
 	data := make(map[string]int)
+
 	data[node.Type.Params.List[0].Names[0].Name] = 1
 	data[node.Type.Params.List[0].Names[1].Name] = 2
-	dataNext := len(data) + 1
 
-BodyLoop:
-	for _, node := range node.Body.List {
+	res, err := processStmt(node.Body.List, data)
+	if err != nil {
+		return "", err
+	}
+	asm += res
+
+	fmt.Printf("end\n")
+	fmt.Printf("asm: %v\n", asm)
+	return asm, nil
+}
+
+func processStmt(stmtList []ast.Stmt, data map[string]int) (string, error) {
+	asm := ""
+
+	for _, node := range stmtList {
 		switch n := node.(type) {
 		case *ast.AssignStmt:
 			if lhs, ok := n.Lhs[0].(*ast.Ident); ok {
 				lhsLoc, ok := data[lhs.Name]
 				if !ok {
-					if dataNext >= 8 {
+					dataLen := len(data)
+					if len(data) >= 8 {
 						return "", errors.New("not enough data space")
 					}
-					data[lhs.Name] = dataNext
-					lhsLoc = dataNext
-					dataNext++
+					data[lhs.Name] = dataLen + 1
+					lhsLoc = dataLen + 1
 				}
 
 				rhsRes, err := Evaluate(n.Rhs[0], data)
@@ -117,14 +137,36 @@ BodyLoop:
 				return "", err
 			}
 			asm += val
-			asm += "pop 0\nhalt"
-			break BodyLoop
+			asm += "pop 0\nhalt\n"
+			return asm, nil
+		case *ast.IfStmt:
+			res, err := Evaluate(n.Cond, data)
+			if err != nil {
+				return "", err
+			}
+
+			res += fmt.Sprintf("jeqz %s%d\n", labelTag, labelCounter)
+			ifStmt, err := processStmt(n.Body.List, data)
+			if err != nil {
+				return "", err
+			}
+			res += ifStmt
+			res += fmt.Sprintf("jump %s%d\n", labelEndTag, labelCounter)
+			res += fmt.Sprintf("label %s%d\n", labelTag, labelCounter)
+
+			elseStmtStruct := n.Else.(*ast.BlockStmt)
+			elseStmt, err := processStmt(elseStmtStruct.List, data)
+			if err != nil {
+				return "", err
+			}
+			res += elseStmt
+			res += fmt.Sprintf("label %s%d\n", labelEndTag, labelCounter)
+
+			labelCounter++
+			asm += res
 		default:
 			return "", errors.New("undefined ast node")
 		}
 	}
-
-	fmt.Printf("end\n")
-	fmt.Printf("asm: %v\n", asm)
 	return asm, nil
 }
