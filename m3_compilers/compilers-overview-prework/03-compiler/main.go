@@ -44,11 +44,10 @@ func runVM(bytecode []byte, x, y byte) (byte, error) {
 const src string = `package f
 
 func f(x, y byte) byte {
-	if x == 0 {
-		return y
-	} else {
-		return x
-	}
+	var z byte
+	z = x + y
+	z = z * z
+	return z
 }`
 
 func main() {
@@ -66,7 +65,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	result, err := runVM(bytecode, 1, 2)
+	result, err := runVM(bytecode, 2, 3)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -164,6 +164,18 @@ func processStmt(stmtList []ast.Stmt, data map[string]int) (string, error) {
 
 			labelCounter++
 			asm += res
+		case *ast.DeclStmt:
+			genDecl := n.Decl.(*ast.GenDecl)
+			valueSpec := genDecl.Specs[0].(*ast.ValueSpec)
+			declName := valueSpec.Names[0].Name
+			_, ok := data[declName]
+			if !ok {
+				dataLen := len(data)
+				if len(data) >= 8 {
+					return "", errors.New("not enough data space")
+				}
+				data[declName] = dataLen + 1
+			}
 		default:
 			return "", errors.New("undefined ast node")
 		}

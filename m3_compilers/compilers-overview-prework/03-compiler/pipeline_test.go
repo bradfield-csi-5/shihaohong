@@ -97,21 +97,21 @@ var testCases = []testCase{
 			{1, 2, 1},
 		},
 	},
-	// {
-	// 	name: "Local Variables 1",
-	// 	src: `package f
+	{
+		name: "Local Variables 1",
+		src: `package f
 
-	// func f(x, y byte) byte {
-	// 	var z byte
-	// 	z = x + y
-	// 	z = z * z
-	// 	return z
-	// }`,
-	// 	examples: []funcExample{
-	// 		{1, 2, 9},
-	// 		{2, 3, 25},
-	// 	},
-	// },
+	func f(x, y byte) byte {
+		var z byte
+		z = x + y
+		z = z * z
+		return z
+	}`,
+		examples: []funcExample{
+			{1, 2, 9},
+			{2, 3, 25},
+		},
+	},
 	// 	{
 	// 		name: "Local Variables 2",
 	// 		src: `package f
