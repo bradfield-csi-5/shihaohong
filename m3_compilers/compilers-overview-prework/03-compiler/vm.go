@@ -46,8 +46,6 @@ func execute(memory []byte) error {
 	)
 
 	applyOp := func(op byte) (byte, error) {
-		fmt.Println("memory")
-		fmt.Println(memory[:5])
 		switch op {
 		case Add:
 			return r1 + r2, nil
@@ -72,8 +70,6 @@ func execute(memory []byte) error {
 			}
 		case Gt:
 			if r1 > r2 {
-				fmt.Println("greater, returning 1")
-
 				return 1, nil
 			} else {
 				return 0, nil
@@ -156,9 +152,6 @@ func execute(memory []byte) error {
 			sp++
 			r1 = memory[sp]
 			var err error
-			fmt.Println("cmp")
-			fmt.Println(r1)
-			fmt.Println(r2)
 			memory[sp], err = applyOp(op)
 			if err != nil {
 				return err
@@ -167,8 +160,6 @@ func execute(memory []byte) error {
 			pc += 1
 
 		case Jump:
-			fmt.Println("we be jumpin")
-			fmt.Println(arg)
 			pc = arg
 		case Jeqz:
 			sp++

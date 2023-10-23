@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-// TODO: pass around?
+// TODO: pass around and initialize rather than leaving the counter as a global?
 var labelCounter = 0
 var labelTag = "label_"
 var labelStartTag = "label_start_"
@@ -90,8 +90,8 @@ func handleIdentExpr(ie *ast.Ident, data map[string]int) (string, error) {
 // should be written to memory address `0`.
 func compile(node *ast.FuncDecl) (string, error) {
 	asm := ""
-	// maps memory to var name
-	data := make(map[string]int)
+	data := make(map[string]int) // maps memory to var name
+	labelCounter = 0             // reset counter
 
 	data[node.Type.Params.List[0].Names[0].Name] = 1
 	data[node.Type.Params.List[0].Names[1].Name] = 2
