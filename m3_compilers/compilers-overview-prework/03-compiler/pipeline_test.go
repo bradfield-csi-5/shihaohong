@@ -112,48 +112,48 @@ var testCases = []testCase{
 			{2, 3, 25},
 		},
 	},
-	// 	{
-	// 		name: "Local Variables 2",
-	// 		src: `package f
+	{
+		name: "Local Variables 2",
+		src: `package f
 
-	// func f(x, y byte) byte {
-	// 	var z byte
-	// 	z = x
-	// 	x = y
-	// 	y = z
-	// 	return x
-	// }`,
-	// 		examples: []funcExample{
-	// 			{1, 1, 1},
-	// 			{1, 2, 2},
-	// 			{2, 1, 1},
-	// 			{3, 15, 15},
-	// 		},
-	// 	},
-	// 	{
-	// 		name: "Local Variables 3",
-	// 		src: `package f
+	func f(x, y byte) byte {
+		var z byte
+		z = x
+		x = y
+		y = z
+		return x
+	}`,
+		examples: []funcExample{
+			{1, 1, 1},
+			{1, 2, 2},
+			{2, 1, 1},
+			{3, 15, 15},
+		},
+	},
+	{
+		name: "Local Variables 3",
+		src: `package f
 
-	// func f(x, y byte) byte {
-	// 	var a byte
-	// 	var b byte
-	// 	a = x * y
-	// 	b = x + y
-	// 	if a < b {
-	// 		return b - a
-	// 	} else {
-	// 		return a - b
-	// 	}
-	// }`,
-	// 		examples: []funcExample{
-	// 			{1, 2, 1},
-	// 			{1, 7, 1},
-	// 			{2, 2, 0},
-	// 			{2, 3, 1},
-	// 			{4, 4, 8},
-	// 			{4, 5, 11},
-	// 		},
-	// 	},
+	func f(x, y byte) byte {
+		var a byte
+		var b byte
+		a = x * y
+		b = x + y
+		if a < b {
+			return b - a
+		} else {
+			return a - b
+		}
+	}`,
+		examples: []funcExample{
+			{1, 2, 1},
+			{1, 7, 1},
+			{2, 2, 0},
+			{2, 3, 1},
+			{4, 4, 8},
+			{4, 5, 11},
+		},
+	},
 	// 	{
 	// 		name: "Fibonacci",
 	// 		src: `package f

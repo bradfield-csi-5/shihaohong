@@ -56,10 +56,12 @@ func handleBinaryExpr(be *ast.BinaryExpr, data map[string]int) (string, error) {
 		return xval + yval + "mul\n", nil
 	case "/":
 		return xval + yval + "div\n", nil
+	case "<":
+		return fmt.Sprintf("%s%slt\n", xval, yval), nil
 	case "==":
 		return fmt.Sprintf("%s%seq\n", xval, yval), nil
 	default:
-		return "", errors.New("undefined operation")
+		return "", fmt.Errorf("undefined operation %s", be.Op.String())
 	}
 }
 
