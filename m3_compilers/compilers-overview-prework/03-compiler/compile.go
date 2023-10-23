@@ -10,6 +10,7 @@ import (
 // TODO: pass around?
 var labelCounter = 0
 var labelTag = "label_"
+var labelStartTag = "label_start_"
 var labelEndTag = "label_end_"
 
 // Given an expression containing only int types, evaluate
@@ -58,6 +59,8 @@ func handleBinaryExpr(be *ast.BinaryExpr, data map[string]int) (string, error) {
 		return xval + yval + "div\n", nil
 	case "<":
 		return fmt.Sprintf("%s%slt\n", xval, yval), nil
+	case ">":
+		return fmt.Sprintf("%s%sgt\n", xval, yval), nil
 	case "==":
 		return fmt.Sprintf("%s%seq\n", xval, yval), nil
 	default:
@@ -178,6 +181,26 @@ func processStmt(stmtList []ast.Stmt, data map[string]int) (string, error) {
 				}
 				data[declName] = dataLen + 1
 			}
+		case *ast.ForStmt:
+			res := ""
+			res += fmt.Sprintf("label %s%d\n", labelStartTag, labelCounter)
+			condVal, err := Evaluate(n.Cond, data)
+			if err != nil {
+				return "", err
+			}
+			res += condVal
+
+			res += fmt.Sprintf("jeqz %s%d\n", labelEndTag, labelCounter)
+			stmt, err := processStmt(n.Body.List, data)
+			if err != nil {
+				return "", err
+			}
+			res += stmt
+			res += fmt.Sprintf("jump %s%d\n", labelStartTag, labelCounter)
+			res += fmt.Sprintf("label %s%d\n", labelEndTag, labelCounter)
+
+			labelCounter++
+			asm += res
 		default:
 			return "", errors.New("undefined ast node")
 		}

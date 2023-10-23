@@ -98,6 +98,22 @@ var testCases = []testCase{
 		},
 	},
 	{
+		name: ">",
+		src: `package f
+
+	func f(x, y byte) byte {
+		if x > y {
+			return x
+		} else {
+			return y
+		}
+	}`,
+		examples: []funcExample{
+			{2, 1, 2},
+			{1, 7, 7},
+		},
+	},
+	{
 		name: "Local Variables 1",
 		src: `package f
 
@@ -154,37 +170,37 @@ var testCases = []testCase{
 			{4, 5, 11},
 		},
 	},
-	// 	{
-	// 		name: "Fibonacci",
-	// 		src: `package f
+	{
+		name: "Fibonacci",
+		src: `package f
 
-	//	func f(x, y byte) byte {
-	//		var a byte
-	//		var b byte
-	//		var c byte
-	//		a = 0
-	//		b = 1
-	//		for x > 0 {
-	//			c = a + b
-	//			a = b
-	//			b = c
-	//			x = x - 1
-	//		}
-	//		return b
-	//	}`,
-	//
-	//		examples: []funcExample{
-	//			{1, 0, 1},
-	//			{2, 0, 2},
-	//			{3, 0, 3},
-	//			{4, 0, 5},
-	//			{5, 0, 8},
-	//			{6, 0, 13},
-	//			{7, 0, 21},
-	//			{8, 0, 34},
-	//			{9, 0, 55},
-	//		},
-	//	},
+		func f(x, y byte) byte {
+			var a byte
+			var b byte
+			var c byte
+			a = 0
+			b = 1
+			for x > 0 {
+				c = a + b
+				a = b
+				b = c
+				x = x - 1
+			}
+			return b
+		}`,
+
+		examples: []funcExample{
+			{1, 0, 1},
+			{2, 0, 2},
+			{3, 0, 3},
+			{4, 0, 5},
+			{5, 0, 8},
+			{6, 0, 13},
+			{7, 0, 21},
+			{8, 0, 34},
+			{9, 0, 55},
+		},
+	},
 }
 
 func TestPipeline(t *testing.T) {

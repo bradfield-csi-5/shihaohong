@@ -46,13 +46,16 @@ const src string = `package f
 func f(x, y byte) byte {
 	var a byte
 	var b byte
-	a = x * y
-	b = x + y
-	if a < b {
-		return b - a
-	} else {
-		return a - b
+	var c byte
+	a = 0
+	b = 1
+	for x > 0 {
+		c = a + b
+		a = b
+		b = c
+		x = x - 1
 	}
+	return b
 }`
 
 func main() {
@@ -70,7 +73,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	result, err := runVM(bytecode, 2, 3)
+	result, err := runVM(bytecode, 9, 0)
 	if err != nil {
 		log.Fatal(err)
 	}
