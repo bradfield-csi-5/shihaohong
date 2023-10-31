@@ -149,7 +149,7 @@ func (s *Scanner) peek() uint8 {
 }
 
 func (s *Scanner) peekNext() uint8 {
-	if s.isAtEnd() {
+	if s.current+1 >= len(s.source) {
 		// src: https://go.dev/ref/spec#String_literals
 		// The three-digit octal (\nnn) and two-digit hexadecimal (\xnn)
 		// escapes represent individual bytes of the resulting string
