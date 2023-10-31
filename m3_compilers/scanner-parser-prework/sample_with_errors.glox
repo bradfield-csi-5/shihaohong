@@ -1,0 +1,6 @@
+var abc = 1234";
+
+var bob = "Bob";
+var alice = "Alice";
+
+var salary = 50.00 + 120;

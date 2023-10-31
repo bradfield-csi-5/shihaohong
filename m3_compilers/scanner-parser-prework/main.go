@@ -7,14 +7,41 @@ import (
 )
 
 func main() {
-	// TODO: implement runFile mode
-	l := &Lox{}
-	l.runPrompt()
+	argsLen := len(os.Args)
+
+	if argsLen > 2 {
+		fmt.Println("Usage: glox <inputFile>")
+	} else if argsLen == 2 {
+		l := &Lox{}
+		err := l.runFile(os.Args[1])
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		l := &Lox{}
+		err := l.runPrompt()
+		if err != nil {
+			panic(err)
+		}
+	}
 }
 
 type Lox struct {
 	hadError bool
 	Scanner  *Scanner
+}
+
+func (l *Lox) runFile(path string) error {
+	file, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+
+	err = l.run(string(file))
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (l *Lox) runPrompt() error {
@@ -28,7 +55,6 @@ func (l *Lox) runPrompt() error {
 }
 
 func (l *Lox) run(src string) error {
-	// TODO: implement scanner
 	l.Scanner = NewScanner(src)
 	tokens := l.Scanner.ScanTokens()
 	for _, t := range tokens {

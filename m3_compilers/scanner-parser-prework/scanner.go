@@ -258,6 +258,6 @@ func (s *Scanner) error(line int, message string) {
 }
 
 func (s *Scanner) report(line int, where string, message string) {
-	fmt.Printf("[line %d] Error%s: %s\n", line, where, message)
+	fmt.Printf("<line %d> Error%s: %s\n", line, where, message)
 	s.hadError = false
 }
