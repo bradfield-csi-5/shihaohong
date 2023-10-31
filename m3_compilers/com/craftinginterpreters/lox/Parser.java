@@ -17,11 +17,11 @@ class Parser {
 
     Expr parse() {
         try {
-          return expression();
+            return expression();
         } catch (ParseError error) {
-          return null;
+            return null;
         }
-      }
+    }
 
     private Expr expression() {
         return equality();
@@ -152,7 +152,4 @@ class Parser {
         Lox.error(token, message);
         return new ParseError();
     }
-
-
-
 }
