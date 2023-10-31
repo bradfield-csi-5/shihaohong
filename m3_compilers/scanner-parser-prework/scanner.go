@@ -225,6 +225,7 @@ func (s *Scanner) number() {
 
 	// TODO: handle float err?
 	float, _ := strconv.ParseFloat(s.source[s.start:s.current], 64)
+
 	s.addTokenWithLiteral(NUMBER, float)
 }
 

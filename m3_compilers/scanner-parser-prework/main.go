@@ -27,8 +27,8 @@ func main() {
 }
 
 type Lox struct {
-	hadError bool
-	Scanner  *Scanner
+	Scanner *Scanner
+	Parser  *Parser
 }
 
 func (l *Lox) runFile(path string) error {
@@ -37,10 +37,7 @@ func (l *Lox) runFile(path string) error {
 		return err
 	}
 
-	err = l.run(string(file))
-	if err != nil {
-		return err
-	}
+	l.run(string(file))
 	return nil
 }
 
@@ -50,17 +47,20 @@ func (l *Lox) runPrompt() error {
 		fmt.Print("> ")
 		line, _ := reader.ReadString('\n')
 		l.run(line)
-		l.hadError = false
+		l.Scanner.hadError = false
 	}
 }
 
-func (l *Lox) run(src string) error {
+func (l *Lox) run(src string) {
 	l.Scanner = NewScanner(src)
 	tokens := l.Scanner.ScanTokens()
 	for _, t := range tokens {
 		fmt.Printf("token: %s\n", t.String())
 	}
 
-	return nil
-	// TODO: implement parser
+	l.Parser = NewParser(tokens)
+	expr := l.Parser.parse()
+
+	p := AstPrinter{}
+	fmt.Println(p.print(expr))
 }
