@@ -1,7 +1,7 @@
 package main
 
 type Expr interface {
-	accept(Visitor[any]) any
+	accept(Visitor) any
 }
 
 type BinaryExpr struct {
@@ -10,7 +10,7 @@ type BinaryExpr struct {
 	right    Expr
 }
 
-func (e *BinaryExpr) accept(v Visitor[any]) any {
+func (e *BinaryExpr) accept(v Visitor) any {
 	return v.visitBinaryExpr(e)
 }
 
@@ -19,7 +19,7 @@ type UnaryExpr struct {
 	expr     Expr
 }
 
-func (e *UnaryExpr) accept(v Visitor[any]) any {
+func (e *UnaryExpr) accept(v Visitor) any {
 	return v.visitUnaryExpr(e)
 }
 
@@ -27,7 +27,7 @@ type LiteralExpr struct {
 	value interface{}
 }
 
-func (e *LiteralExpr) accept(v Visitor[any]) any {
+func (e *LiteralExpr) accept(v Visitor) any {
 	return v.visitLiteralExpr(e)
 }
 
@@ -35,13 +35,13 @@ type GroupingExpr struct {
 	expr Expr
 }
 
-func (e *GroupingExpr) accept(v Visitor[any]) any {
+func (e *GroupingExpr) accept(v Visitor) any {
 	return v.visitGroupingExpr(e)
 }
 
-type Visitor[T any] interface {
-	visitBinaryExpr(expr *BinaryExpr) T
-	visitUnaryExpr(expr *UnaryExpr) T
-	visitLiteralExpr(expr *LiteralExpr) T
-	visitGroupingExpr(expr *GroupingExpr) T
+type Visitor interface {
+	visitBinaryExpr(expr *BinaryExpr) any
+	visitUnaryExpr(expr *UnaryExpr) any
+	visitLiteralExpr(expr *LiteralExpr) any
+	visitGroupingExpr(expr *GroupingExpr) any
 }
