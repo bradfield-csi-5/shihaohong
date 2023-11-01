@@ -15,18 +15,18 @@ func (a *AstPrinter) print(expr Expr) string {
 	return str
 }
 
-//lint:ignore U1000 the visitor pattern is making this report unused incorrectly
+//lint:ignore U1000 the visitor pattern is making this incorrectly report as unused
 func (a *AstPrinter) visitBinaryExpr(expr *BinaryExpr) any {
 	return a.parenthesize(expr.operator.lexeme, expr.left, expr.right)
 }
 
-//lint:ignore U1000 the visitor pattern is making this report unused incorrectly
+//lint:ignore U1000 the visitor pattern is making this incorrectly report as unused
 func (a *AstPrinter) visitUnaryExpr(expr *UnaryExpr) any {
 	return a.parenthesize(expr.operator.lexeme, expr.expr)
 
 }
 
-//lint:ignore U1000 the visitor pattern is making this report unused incorrectly
+//lint:ignore U1000 the visitor pattern is making this incorrectly report as unused
 func (a *AstPrinter) visitLiteralExpr(expr *LiteralExpr) any {
 	if expr.value == nil {
 		return "nil"
@@ -34,7 +34,7 @@ func (a *AstPrinter) visitLiteralExpr(expr *LiteralExpr) any {
 	return fmt.Sprintf("%v", expr.value)
 }
 
-//lint:ignore U1000 the visitor pattern is making this report unused incorrectly
+//lint:ignore U1000 the visitor pattern is making this incorrectly report as unused
 func (a *AstPrinter) visitGroupingExpr(expr *GroupingExpr) any {
 	return a.parenthesize("group", expr.expr)
 }
