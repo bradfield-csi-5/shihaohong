@@ -16,6 +16,8 @@ int main(int argc, char *argv[]) {
   long n;
   pid_t pid;
 
+  // printf("num tests: %d\n", num_tests);
+
   for (i = 0; i < num_tests; i++) {
     pipe(testfds[i]);
     pipe(resultfds[i]);
@@ -43,6 +45,7 @@ int main(int argc, char *argv[]) {
 
   // for each number, run each test
   for (n = START; n <= END; n++) {
+    // printf("n: %ld\n", n);
     for (i = 0; i < num_tests; i++) {
 
       // we are the parent, so send test case to child and read results

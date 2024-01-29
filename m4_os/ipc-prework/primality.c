@@ -43,8 +43,22 @@ int main(int argc, char*argv[]) {
   } else {
     for (;;) {
       read(STDIN_FILENO, &num, sizeof(num));
+      // ssize_t bytes_read = read(STDIN_FILENO, &num, sizeof(num));
+      // if (bytes_read == -1) {
+      //     // Handle read error
+      //     perror("read");
+      //     exit(1);
+      // }
+
       int result = (*func)(num);
       write(STDOUT_FILENO, &result, sizeof(result));
+
+      // ssize_t bytes_written = write(STDOUT_FILENO, &result, sizeof(result));
+      // if (bytes_written == -1) {
+      //     // Handle write error
+      //     perror("write");
+      //     exit(1);
+      // }
     }
   }
 }
