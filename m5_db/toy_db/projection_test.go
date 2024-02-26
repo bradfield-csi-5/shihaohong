@@ -51,8 +51,8 @@ func TestProjectionSome(t *testing.T) {
 	var (
 		scanOp   = NewScanOperator(tuples)
 		selectOp = NewProjectionOperator(map[string]struct{}{
-			"id":  struct{}{},
-			"age": struct{}{},
+			"id":  {},
+			"age": {},
 		}, scanOp)
 	)
 
