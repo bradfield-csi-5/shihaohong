@@ -53,7 +53,6 @@ func main() {
 	scanOp := NewScanOperator(tuples)
 	limitOp := NewLimitOperator(5, scanOp)
 
-	// All tuples should be returned.
 	for range tuples {
 		fmt.Println(limitOp.Next())
 		fmt.Println(limitOp.Execute())
