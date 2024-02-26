@@ -1,4 +1,4 @@
-package solution
+package main
 
 // Operator is the interface implemented by all operators.
 type Operator interface {

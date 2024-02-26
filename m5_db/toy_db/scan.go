@@ -1,4 +1,4 @@
-package solution
+package main
 
 // ScanOperator returns a pre-determined set of tuples.
 type ScanOperator struct {

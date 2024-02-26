@@ -1,4 +1,4 @@
-package solution
+package main
 
 // SelectionOperator filters tuples from its child based on the provided BinaryExpression.
 type SelectionOperator struct {

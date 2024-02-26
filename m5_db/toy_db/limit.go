@@ -1,4 +1,4 @@
-package solution
+package main
 
 // LimitOperator limits the number of tuples returned based on the provided limit.
 type LimitOperator struct {

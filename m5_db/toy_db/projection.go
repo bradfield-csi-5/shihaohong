@@ -1,4 +1,4 @@
-package solution
+package main
 
 // ProjectionOperator returns tuples in which only the specified fields are contained.
 type ProjectionOperator struct {
