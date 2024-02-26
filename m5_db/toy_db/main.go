@@ -16,12 +16,8 @@ func loadCSV(filename string, maxLoad int) []Tuple {
 	reader := csv.NewReader(f)
 	res := []Tuple{}
 
-	// read schema
+	// read table fields/attributes
 	colNames, _ := reader.Read()
-	for i, c := range colNames {
-		fmt.Printf("column: %s - %d\n", c, i)
-	}
-
 	count := 0
 	for {
 		if count == maxLoad {
