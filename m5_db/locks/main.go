@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"sync"
+	"time"
+)
 
 func main() {
 	rowA := []Row{
@@ -95,7 +99,42 @@ func main() {
 	// txn2.locksManager.unlockRowS("a", 1)
 	// println("exclusive lock test success")
 
+	// cleanable deadlock
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func(txn Transaction) {
+		defer wg.Done()
+		// 1
+		txn.locksManager.lockRowX("a", 1)
+		fmt.Println("txn1 lock a")
+		time.Sleep(2 * time.Second)
+		// 3
+		txn.locksManager.lockRowX("b", 1)
+		fmt.Println("txn1 lock b")
+		txn.locksManager.unlockRowX("a", 1)
+		txn.locksManager.unlockRowX("b", 1)
+
+	}(txn1)
+
+	wg.Add(1)
+	go func(txn Transaction) {
+		defer wg.Done()
+		time.Sleep(1 * time.Second)
+		// 2
+		txn.locksManager.lockRowX("b", 1)
+		time.Sleep(3 * time.Second)
+		fmt.Println("txn2 lock b")
+		// 4
+		txn.locksManager.lockRowX("a", 1)
+		fmt.Println("txn2 lock a")
+		time.Sleep(2 * time.Second)
+		txn.locksManager.unlockRowX("a", 1)
+		txn.locksManager.unlockRowX("b", 1)
+	}(txn2)
+
+	wg.Wait()
+
 	// txn1.locksManager.unlockRowS("a", 1)
 	// txn2.locksManager.unlockRowS("a", 1)
-
 }

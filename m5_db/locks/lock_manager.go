@@ -13,7 +13,19 @@ type LocksManager struct {
 type Lock struct {
 	sLockCount int
 	xLockCount int
+	owners     map[int]bool
+	waiting    []int
 	mutex      *sync.RWMutex
+}
+
+func NewLock() Lock {
+	return Lock{
+		sLockCount: 0,
+		xLockCount: 0,
+		owners:     map[int]bool{},
+		waiting:    []int{},
+		mutex:      &sync.RWMutex{},
+	}
 }
 
 func (lm *LocksManager) lockRowS(table string, idx int) {
@@ -21,15 +33,11 @@ func (lm *LocksManager) lockRowS(table string, idx int) {
 	key := getLockHashKey(table, idx)
 	lock, exists := lm.locks[key]
 	if !exists {
-		lock = Lock{
-			sLockCount: 0,
-			xLockCount: 0,
-			mutex:      &sync.RWMutex{},
-		}
+		lock = NewLock()
 		lm.locks[key] = lock
 	}
-
 	lock.mutex.RLock()
+	lock.owners[idx] = true
 	lock.sLockCount++
 }
 
@@ -37,11 +45,12 @@ func (lm *LocksManager) lockRowX(table string, idx int) {
 	key := getLockHashKey(table, idx)
 	lock, exists := lm.locks[key]
 	if !exists {
-		lock = Lock{}
+		lock = NewLock()
 		lm.locks[key] = lock
 	}
 
 	lock.mutex.Lock()
+	lock.owners[idx] = true
 	lock.xLockCount++
 }
 
@@ -49,11 +58,11 @@ func (lm *LocksManager) unlockRowS(table string, idx int) {
 	key := getLockHashKey(table, idx)
 	lock, exists := lm.locks[key]
 	if !exists {
-		lock = Lock{}
-		lm.locks[key] = lock
+		panic("attempting to unlock from nonexistent transaction")
 	}
 
 	lock.mutex.RUnlock()
+	delete(lock.owners, idx)
 	lock.sLockCount--
 	if lock.sLockCount == 0 && lock.xLockCount == 0 {
 		delete(lm.locks, key)
@@ -64,12 +73,12 @@ func (lm *LocksManager) unlockRowX(table string, idx int) {
 	key := getLockHashKey(table, idx)
 	lock, exists := lm.locks[key]
 	if !exists {
-		lock = Lock{}
-		lm.locks[key] = lock
+		panic("attempting to unlock from nonexistent transaction")
 	}
 
 	lock.mutex.Unlock()
-	lock.sLockCount--
+	delete(lock.owners, idx)
+	lock.xLockCount--
 	if lock.sLockCount == 0 && lock.xLockCount == 0 {
 		delete(lm.locks, key)
 	}
@@ -79,6 +88,7 @@ func (lm *LocksManager) checkForDeadlock() {
 	for {
 		time.Sleep(1 * time.Second)
 		fmt.Println("one second elapsed")
+
 		// check deadlock
 	}
 }
