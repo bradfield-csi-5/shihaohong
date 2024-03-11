@@ -18,6 +18,18 @@ func NewWaitForGraph() *WaitForGraph {
 	}
 }
 
+func (g *WaitForGraph) hasCycles(node int, visited map[int]bool) bool {
+	for i := range g.nodes[node].OutNeighbors {
+		if visited[i] {
+			return true
+		} else {
+			visited[i] = true
+			return g.hasCycles(node, visited)
+		}
+	}
+	return false
+}
+
 func (g *WaitForGraph) AddNode(nodeID int) {
 	if _, exists := g.nodes[nodeID]; !exists {
 		newNode := &Node{

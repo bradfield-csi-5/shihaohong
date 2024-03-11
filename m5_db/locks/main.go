@@ -21,12 +21,9 @@ func main() {
 		"a": {rows: rowA},
 		"b": {rows: rowB},
 	}
-	db := Database{tables}
-	lm := LocksManager{
-		locks: map[string]Lock{},
-	}
+	db := &Database{tables}
+	lm := NewLocksManager()
 
-	fmt.Println(db)
 	txn1 := Transaction{
 		id:           1,
 		locksManager: lm,
@@ -106,14 +103,16 @@ func main() {
 	go func(txn Transaction) {
 		defer wg.Done()
 		// 1
-		txn.locksManager.lockRowX("a", 1)
-		fmt.Println("txn1 lock a")
+		fmt.Println("attempt: txn1 lock a1")
+		txn.locksManager.lockRowX("a", 1, txn)
+		fmt.Println("success: txn1 lock a1")
 		time.Sleep(2 * time.Second)
 		// 3
-		txn.locksManager.lockRowX("b", 1)
-		fmt.Println("txn1 lock b")
-		txn.locksManager.unlockRowX("a", 1)
-		txn.locksManager.unlockRowX("b", 1)
+		fmt.Println("attempt: txn1 lock b1")
+		txn.locksManager.lockRowX("b", 1, txn)
+		fmt.Println("success: txn1 lock b1")
+		txn.locksManager.unlockRowX("a", 1, txn)
+		txn.locksManager.unlockRowX("b", 1, txn)
 
 	}(txn1)
 
@@ -122,15 +121,17 @@ func main() {
 		defer wg.Done()
 		time.Sleep(1 * time.Second)
 		// 2
-		txn.locksManager.lockRowX("b", 1)
+		fmt.Println("attempt: txn2 lock b1")
+		txn.locksManager.lockRowX("b", 1, txn)
+		fmt.Println("success: txn2 lock b1")
 		time.Sleep(3 * time.Second)
-		fmt.Println("txn2 lock b")
 		// 4
-		txn.locksManager.lockRowX("a", 1)
-		fmt.Println("txn2 lock a")
+		fmt.Println("attempt: txn2 lock a1")
+		txn.locksManager.lockRowX("a", 1, txn)
+		fmt.Println("success: txn2 lock a1")
 		time.Sleep(2 * time.Second)
-		txn.locksManager.unlockRowX("a", 1)
-		txn.locksManager.unlockRowX("b", 1)
+		txn.locksManager.unlockRowX("a", 1, txn)
+		txn.locksManager.unlockRowX("b", 1, txn)
 	}(txn2)
 
 	wg.Wait()
