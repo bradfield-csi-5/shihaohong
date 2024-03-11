@@ -98,28 +98,4 @@ func main() {
 	// txn1.locksManager.unlockRowS("a", 1)
 	// txn2.locksManager.unlockRowS("a", 1)
 
-	/*
-	   void sLockDoesNotBlockSLock() throws Throwable {
-	       final Waiter waiter = new Waiter();
-
-	       lm.lock(lockName, txn, Lock.LockMode.SHARED);
-
-	       new Thread(() -> {
-	           try {
-	               lm.lock(lockName, 2, Lock.LockMode.SHARED);
-	           } catch (DeadlockException e) {
-	           }
-
-	           waiter.resume();
-	       }).start();
-
-	       try {
-	           waiter.await(10);
-	       } catch (TimeoutException e) {
-	           fail("Lock was not acquired, but it should have been");
-	       }
-	   }
-	*/
-
-	// test for single writer
 }
