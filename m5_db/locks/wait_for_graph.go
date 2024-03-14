@@ -8,8 +8,13 @@ type WaitForGraph struct {
 }
 
 type Node struct {
-	OutNeighbors []*Node // outgoing edges
-	InNeighbors  []*Node // incoming edges
+	OutNeighbors []*NodeEdge // outgoing edges
+	InNeighbors  []*NodeEdge // incoming edges
+}
+
+type NodeEdge struct {
+	node           *Node
+	associatedLock Lock
 }
 
 func NewWaitForGraph() *WaitForGraph {
@@ -33,8 +38,8 @@ func (g *WaitForGraph) hasCycles(node int, visited map[int]bool) bool {
 func (g *WaitForGraph) AddNode(nodeID int) {
 	if _, exists := g.nodes[nodeID]; !exists {
 		newNode := &Node{
-			OutNeighbors: []*Node{},
-			InNeighbors:  []*Node{},
+			OutNeighbors: []*NodeEdge{},
+			InNeighbors:  []*NodeEdge{},
 		}
 		g.nodes[nodeID] = newNode
 		fmt.Println("New node added to graph")
@@ -43,18 +48,26 @@ func (g *WaitForGraph) AddNode(nodeID int) {
 	}
 }
 
-func (g *WaitForGraph) AddEdge(fromNodeID, toNodeID int) {
+func (g *WaitForGraph) AddEdge(fromNodeID, toNodeID int, lock Lock) {
 	node1 := g.nodes[fromNodeID]
 	node2 := g.nodes[toNodeID]
-	node1.OutNeighbors = append(node1.OutNeighbors, node2)
-	node2.InNeighbors = append(node2.InNeighbors, node1)
+	nodeEdge1 := &NodeEdge{
+		node:           node1,
+		associatedLock: lock,
+	}
+	nodeEdge2 := &NodeEdge{
+		node:           node2,
+		associatedLock: lock,
+	}
+	node1.OutNeighbors = append(node1.OutNeighbors, nodeEdge2)
+	node2.InNeighbors = append(node2.InNeighbors, nodeEdge1)
 	fmt.Println("New edge added to graph")
 }
 
 func (g *WaitForGraph) RemoveEdge(fromNode, toNode *Node) {
 	index := -1
 	for i, n := range fromNode.OutNeighbors {
-		if n == toNode {
+		if n.node == toNode {
 			index = i
 			break
 		}
@@ -66,7 +79,7 @@ func (g *WaitForGraph) RemoveEdge(fromNode, toNode *Node) {
 	}
 
 	for i, n := range toNode.InNeighbors {
-		if n == toNode {
+		if n.node == toNode {
 			index = i
 			break
 		}
