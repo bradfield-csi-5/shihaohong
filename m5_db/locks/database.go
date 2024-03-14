@@ -4,6 +4,12 @@ type Database struct {
 	tables map[string]Table
 }
 
+func NewDatabase(tables map[string]Table) *Database {
+	return &Database{
+		tables: tables,
+	}
+}
+
 type Table struct {
 	rows []Row
 }

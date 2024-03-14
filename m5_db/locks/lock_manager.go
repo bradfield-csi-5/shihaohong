@@ -1,18 +1,19 @@
 package main
 
 import (
-	// "errors"
 	"fmt"
 	"time"
 )
 
 type LocksManager struct {
 	locks map[string]*Lock
+	db    *Database
 }
 
-func NewLocksManager() *LocksManager {
+func NewLocksManager(db *Database) *LocksManager {
 	lm := &LocksManager{
 		locks: map[string]*Lock{},
+		db:    db,
 	}
 	fmt.Println("starting deadlock checker")
 	go lm.checkForDeadlock()

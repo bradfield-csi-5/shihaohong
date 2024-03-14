@@ -21,18 +21,14 @@ func main() {
 		"a": {rows: rowA},
 		"b": {rows: rowB},
 	}
-	db := &Database{tables}
-	lm := NewLocksManager()
+	db := NewDatabase(tables)
+	lm := NewLocksManager(db)
 
 	txn1 := Transaction{
-		id:           1,
-		locksManager: lm,
-		database:     db,
+		id: 1,
 	}
 	txn2 := Transaction{
-		id:           2,
-		locksManager: lm,
-		database:     db,
+		id: 2,
 	}
 
 	// SIMPLE WAITFORGRAPH TESTS
@@ -80,22 +76,22 @@ func main() {
 	// SIMPLE SYNCHRONOUS LOCK TESTS
 	// shared lock test
 	println("start shared lock test")
-	txn1.locksManager.lockRowS("a", 1, txn1)
-	txn2.locksManager.lockRowS("a", 1, txn2)
-	txn1.locksManager.unlockRowS("a", 1, txn1)
-	txn2.locksManager.unlockRowS("a", 1, txn2)
+	lm.lockRowS("a", 1, txn1)
+	lm.lockRowS("a", 1, txn2)
+	lm.unlockRowS("a", 1, txn1)
+	lm.unlockRowS("a", 1, txn2)
 	println("shared lock test success")
 
 	// deadlock!
-	// txn1.locksManager.lockRow("a", 1, txn1)
-	// txn2.locksManager.lockRowS("a", 1, txn2)
+	// lm.lockRow("a", 1, txn1)
+	// lm.lockRowS("a", 1, txn2)
 
 	// exclusive lock test
 	println("start exclusive lock test")
-	txn1.locksManager.lockRowX("a", 1, txn1)
-	txn1.locksManager.unlockRowX("a", 1, txn1)
-	txn2.locksManager.lockRowS("a", 1, txn2)
-	txn2.locksManager.unlockRowS("a", 1, txn2)
+	lm.lockRowX("a", 1, txn1)
+	lm.unlockRowX("a", 1, txn1)
+	lm.lockRowS("a", 1, txn2)
+	lm.unlockRowS("a", 1, txn2)
 	println("exclusive lock test success")
 
 	// cleanable deadlock
@@ -105,12 +101,12 @@ func main() {
 	go func(txn Transaction) {
 		defer wg.Done()
 		// 1
-		txn.locksManager.lockRowX("a", 1, txn)
+		lm.lockRowX("a", 1, txn)
 		time.Sleep(2 * time.Second)
 		// 3
-		txn.locksManager.lockRowX("b", 1, txn)
-		txn.locksManager.unlockRowX("a", 1, txn)
-		txn.locksManager.unlockRowX("b", 1, txn)
+		lm.lockRowX("b", 1, txn)
+		lm.unlockRowX("a", 1, txn)
+		lm.unlockRowX("b", 1, txn)
 		fmt.Println("txn 1 complete!")
 	}(txn1)
 
@@ -119,25 +115,25 @@ func main() {
 		defer wg.Done()
 		time.Sleep(1 * time.Second)
 		// 2
-		err := txn.locksManager.lockRowX("b", 1, txn)
+		err := lm.lockRowX("b", 1, txn)
 		if err != nil {
 			panic(err)
 		}
 
 		time.Sleep(3 * time.Second)
 		// 4
-		err = txn.locksManager.lockRowX("a", 1, txn)
+		err = lm.lockRowX("a", 1, txn)
 		if err != nil {
 			panic(err)
 		}
 
 		time.Sleep(2 * time.Second)
-		txn.locksManager.unlockRowX("a", 1, txn)
-		txn.locksManager.unlockRowX("b", 1, txn)
+		lm.unlockRowX("a", 1, txn)
+		lm.unlockRowX("b", 1, txn)
 	}(txn2)
 	wg.Wait()
 	fmt.Println("deadlock test success")
 
-	// txn1.locksManager.unlockRowS("a", 1)
-	// txn2.locksManager.unlockRowS("a", 1)
+	// lm.unlockRowS("a", 1)
+	// lm.unlockRowS("a", 1)
 }
