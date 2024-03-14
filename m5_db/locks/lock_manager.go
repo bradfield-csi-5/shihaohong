@@ -22,64 +22,142 @@ func NewLocksManager() *LocksManager {
 type LockTransaction struct {
 	txn        Transaction
 	lockStatus chan LockStatus
+	lockType   LockType
 }
 
 type LockStatus struct {
-	success bool
-	err     error
+	err error
 }
 
 type Lock struct {
-	name    string
-	owners  map[int]LockTransaction
-	waiting []LockTransaction
+	name     string
+	owners   map[int]LockTransaction
+	waiting  []LockTransaction
+	lockType LockType
 }
+
+type LockType string
+
+const (
+	LockX   = "X"
+	LockS   = "S"
+	LockNil = "N"
+)
 
 func NewLock(name string) *Lock {
 	return &Lock{
-		name:    name,
-		owners:  map[int]LockTransaction{},
-		waiting: []LockTransaction{},
+		name:     name,
+		owners:   map[int]LockTransaction{},
+		waiting:  []LockTransaction{},
+		lockType: LockNil,
 	}
 }
 
-// func (lm *LocksManager) lockRowS(table string, idx int, txn Transaction) {
-// 	// mutex r lock
-// 	key := getLockHashKey(table, idx)
-// 	lock, exists := lm.locks[key]
-// 	if !exists {
-// 		lock = NewLock()
-// 		lm.locks[key] = lock
-// 	}
+func (lm *LocksManager) lockRowS(table string, idx int, txn Transaction) error {
+	key := getLockHashKey(table, idx)
+	lock, exists := lm.locks[key]
+	if !exists {
+		lock = NewLock(key)
+		lm.locks[key] = lock
+	}
 
-// 	lock.mutex.RLock()
-// 	lock.owners[idx] = txn
-// 	lock.sLockCount++
-// }
+	lt := LockTransaction{
+		txn:        txn,
+		lockStatus: make(chan LockStatus),
+		lockType:   LockS,
+	}
 
-// func (lm *LocksManager) unlockRowS(table string, idx int, txn Transaction) {
-// 	key := getLockHashKey(table, idx)
-// 	lock, exists := lm.locks[key]
-// 	if !exists {
-// 		panic("attempting to unlock from nonexistent transaction")
-// 	}
+	if len(lock.owners) != 0 && lock.lockType != LockS {
+		lock.waiting = append(lock.waiting, lt)
+		res := <-lt.lockStatus
+		if res.err != nil {
+			return res.err
+		}
+	}
+	lock.owners[txn.id] = lt
+	lock.lockType = LockS
+	return nil
+}
 
-// 	lock.mutex.RUnlock()
-// 	delete(lock.owners, idx)
-// 	lock.sLockCount--
-// }
+func (lm *LocksManager) unlockRowS(table string, idx int, txn Transaction) {
+	key := getLockHashKey(table, idx)
+	lock, exists := lm.locks[key]
+	if !exists {
+		panic("attempting to unlock from nonexistent lock")
+	}
 
-// func (lm *LocksManager) unlockRowX(table string, idx int, txn Transaction) {
-// 	key := getLockHashKey(table, idx)
-// 	lock, exists := lm.locks[key]
-// 	if !exists {
-// 		panic("attempting to unlock from nonexistent transaction")
-// 	}
+	_, exists = lock.owners[txn.id]
+	if !exists {
+		return
+	}
+	delete(lock.owners, txn.id)
+	if len(lock.owners) == 0 {
+		lock.lockType = LockNil
+	}
 
-// 	lock.mutex.Unlock()
-// 	delete(lock.owners, idx)
-// 	lock.xLockCount = 0
-// }
+	// no more waiting transactions, nothing to do
+	if len(lock.waiting) == 0 {
+		return
+	}
+
+	wt := lock.waiting[0]
+	lock.waiting = lock.waiting[1:]
+	lock.owners[wt.txn.id] = wt
+	lock.lockType = wt.lockType
+	wt.lockStatus <- LockStatus{err: nil}
+}
+
+func (lm *LocksManager) lockRowX(table string, idx int, txn Transaction) error {
+	key := getLockHashKey(table, idx)
+	lock, exists := lm.locks[key]
+	if !exists {
+		lock = NewLock(key)
+		lm.locks[key] = lock
+	}
+
+	lt := LockTransaction{
+		txn:        txn,
+		lockStatus: make(chan LockStatus, 1),
+		lockType:   LockX,
+	}
+	if len(lock.owners) != 0 {
+		lock.waiting = append(lock.waiting, lt)
+		res := <-lt.lockStatus
+		if res.err != nil {
+			return res.err
+		}
+	}
+	lock.owners[txn.id] = lt
+	return nil
+}
+
+func (lm *LocksManager) unlockRowX(table string, idx int, txn Transaction) {
+	key := getLockHashKey(table, idx)
+	lock, exists := lm.locks[key]
+	if !exists {
+		panic("attempting to unlock from nonexistent lock")
+	}
+
+	_, exists = lock.owners[txn.id]
+	if !exists {
+		return
+	}
+	delete(lock.owners, txn.id)
+
+	if len(lock.owners) == 0 {
+		lock.lockType = LockNil
+	}
+	// no more waiting transactions, nothing to do
+	if len(lock.waiting) == 0 {
+		return
+	}
+
+	wt := lock.waiting[0]
+	lock.waiting = lock.waiting[1:]
+	lock.owners[wt.txn.id] = wt
+	lock.lockType = wt.lockType
+	wt.lockStatus <- LockStatus{err: nil}
+}
 
 func (lm *LocksManager) checkForDeadlock() {
 	for {
@@ -105,97 +183,21 @@ func (lm *LocksManager) checkForDeadlock() {
 		// check deadlock
 		for i := range wfg.nodes {
 			if wfg.hasCycles(i, map[int]bool{i: true}) {
-				fmt.Println("DEADLOCK DETECTED OMG")
-				// for now just kill first node, should clear the cycle-causing node in reality
+				fmt.Println("====== DEADLOCK DETECTED =====")
+				// TODO: for now just kill first node, should clear the cycle-causing node in reality
 				lock := wfg.nodes[i].OutNeighbors[0].associatedLock
-				fmt.Println("lock to clean out:")
-				fmt.Println(lock.name)
-
-				fmt.Println("txn to vanquish")
-				fmt.Println(lock.owners[2].txn.id)
-
 				lock.owners = make(map[int]LockTransaction)
-				fmt.Println("waiting txns")
-				fmt.Println(lock.waiting)
 				if len(lock.waiting) != 0 {
 					nt := lock.waiting[0]
 					lock.owners[nt.txn.id] = nt
 					lock.waiting = lock.waiting[1:]
-					fmt.Println("next txn given lock:")
-					fmt.Println(nt.txn.id)
 					nt.lockStatus <- LockStatus{
-						success: true,
-						err:     nil,
+						err: nil,
 					}
 				}
 			}
 		}
 	}
-}
-
-func (lm *LocksManager) lockRow(table string, idx int, txn Transaction) {
-	key := getLockHashKey(table, idx)
-	lock, exists := lm.locks[key]
-	if !exists {
-		lock = NewLock(key)
-		lm.locks[key] = lock
-	}
-
-	lt := LockTransaction{
-		txn:        txn,
-		lockStatus: make(chan LockStatus, 1),
-	}
-	if len(lock.owners) != 0 {
-		wt := LockTransaction{
-			txn:        txn,
-			lockStatus: make(chan LockStatus, 1),
-		}
-		lock.waiting = append(lock.waiting, wt)
-		fmt.Println("waiting for lock")
-		res := <-wt.lockStatus
-		fmt.Println("stopped waiting")
-		if res.err != nil {
-			fmt.Println("received lock successfully")
-		} else {
-			fmt.Println("error receiving lock, canceled request due to deadlock")
-		}
-	}
-	lock.owners[txn.id] = lt
-}
-
-func (lm *LocksManager) unlockRow(table string, idx int, txn Transaction) {
-	fmt.Println("unlocking row for")
-	key := getLockHashKey(table, idx)
-	fmt.Println(txn.id)
-	fmt.Println(key)
-	lock, exists := lm.locks[key]
-	if !exists {
-		fmt.Println("lock does not exist")
-		panic("attempting to unlock from nonexistent lock")
-	}
-
-	_, exists = lock.owners[txn.id]
-	fmt.Println("exists")
-	fmt.Println(exists)
-
-	if !exists {
-		fmt.Println("trying to unlock with an owner that does not exist")
-		fmt.Println(txn.id)
-		fmt.Println(table)
-		fmt.Println(idx)
-		return
-	}
-	delete(lock.owners, idx)
-
-	// no more waiting transactions, nothing to do
-	if len(lock.waiting) == 0 {
-		return
-	}
-
-	wt := lock.waiting[0]
-	lock.waiting = lock.waiting[1:]
-	lock.owners[wt.txn.id] = wt
-	wt.lockStatus <- LockStatus{success: true, err: nil}
 }
 
 func getLockHashKey(table string, idx int) string {
