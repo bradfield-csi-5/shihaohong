@@ -130,6 +130,7 @@ func main() {
 		time.Sleep(2 * time.Second)
 		lm.unlockRowX("a", 1, txn)
 		lm.unlockRowX("b", 1, txn)
+		fmt.Println("txn 2 complete!")
 	}(txn2)
 	wg.Wait()
 	fmt.Println("deadlock test success")
