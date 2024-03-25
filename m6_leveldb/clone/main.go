@@ -50,7 +50,7 @@ func main() {
 	fmt.Printf("hasNewVal: %t\n", ok)
 
 	// invalid values
-	it, err = db.RangeScan([]byte("1"), []byte("2"))
+	_, err = db.RangeScan([]byte("1"), []byte("2"))
 	errCheck(err)
 }
 
