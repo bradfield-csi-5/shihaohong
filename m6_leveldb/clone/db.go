@@ -1,5 +1,10 @@
 package main
 
+import (
+	"errors"
+	"sort"
+)
+
 type DB interface {
 	// Get gets the value for the given key. It returns an error if the
 	// DB does not contain the key.
@@ -61,8 +66,46 @@ func (db *MemoryDB) Delete(key []byte) error {
 }
 
 func (db *MemoryDB) RangeScan(start, limit []byte) (Iterator, error) {
-	// TODO: sort by key, return the values sorted in that manner
-	return nil, nil
+	startKey := string(start)
+	limitKey := string(limit)
+
+	keys := make([]string, 0)
+	for k := range db.data {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	startFound := false
+	iterator := NewIter()
+	for k := range keys {
+		// when start is found, toggle
+		if !startFound && keys[k] == startKey {
+			startFound = true
+		}
+
+		// continue iterating if we haven't found the starting key
+		if !startFound {
+			continue
+		}
+
+		// append to iterator tuple list
+		tuple := Tuple{
+			key:   []byte(keys[k]),
+			value: db.data[keys[k]],
+		}
+		iterator.tuples = append(iterator.tuples, tuple)
+
+		// reached limit key, break out
+		if keys[k] == limitKey {
+			break
+		}
+	}
+
+	if len(iterator.tuples) == 0 {
+		return nil, errors.New("no tuples within the range found")
+	}
+
+	return iterator, nil
 }
 
 func NewMemoryDB() MemoryDB {
@@ -97,4 +140,11 @@ func (it *Iter) Key() []byte {
 
 func (it *Iter) Value() []byte {
 	return it.tuples[it.index].value
+}
+
+func NewIter() *Iter {
+	return &Iter{
+		tuples: make([]Tuple, 0),
+		index:  0,
+	}
 }

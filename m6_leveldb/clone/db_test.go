@@ -5,6 +5,7 @@ import (
 	"testing"
 )
 
+// To run, `go test -bench=.`
 const MAX_ITEMS = 100000
 
 func BenchmarkMemoryDBPut(b *testing.B) {
