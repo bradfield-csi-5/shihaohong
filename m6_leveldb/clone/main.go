@@ -51,6 +51,10 @@ func main() {
 
 	// invalid values
 	_, err = db.RangeScan([]byte("1"), []byte("2"))
+	iterKey = it.Key()
+	iterVal = it.Value()
+	fmt.Printf("iterKey: %s\n", iterKey)
+	fmt.Printf("iterVal: %s\n", iterVal)
 	errCheck(err)
 }
 

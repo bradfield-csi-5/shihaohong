@@ -1,7 +1,7 @@
 package main
 
 import (
-	"errors"
+	// "errors"
 	"sort"
 )
 
@@ -101,9 +101,9 @@ func (db *MemoryDB) RangeScan(start, limit []byte) (Iterator, error) {
 		}
 	}
 
-	if len(iterator.tuples) == 0 {
-		return nil, errors.New("no tuples within the range found")
-	}
+	// if len(iterator.tuples) == 0 {
+	// 	return nil, errors.New("no tuples within the range found")
+	// }
 
 	return iterator, nil
 }
@@ -125,7 +125,9 @@ type Tuple struct {
 }
 
 func (it *Iter) Next() bool {
-	it.index++
+	if it.index < len(it.tuples) {
+		it.index++
+	}
 	return it.index < len(it.tuples)
 }
 
@@ -135,10 +137,16 @@ func (it *Iter) Error() error {
 }
 
 func (it *Iter) Key() []byte {
+	if it.index >= len(it.tuples) {
+		return nil
+	}
 	return it.tuples[it.index].key
 }
 
 func (it *Iter) Value() []byte {
+	if it.index >= len(it.tuples) {
+		return nil
+	}
 	return it.tuples[it.index].value
 }
 
