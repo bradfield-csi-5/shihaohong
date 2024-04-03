@@ -8,7 +8,7 @@ import (
 
 // probability constant for when to increment the level when determining random level
 const p = 0.25
-const maxLevel = 3
+const maxLevel = 16
 
 type Node struct {
 	key   []byte

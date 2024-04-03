@@ -1,7 +1,6 @@
 package main
 
 import (
-	// "errors"
 	"sort"
 )
 
@@ -42,30 +41,30 @@ type Iterator interface {
 }
 
 // Initial version, in-memory and no persistence
-type MemoryDB struct {
+type MapDB struct {
 	data map[string][]byte
 }
 
-func (db *MemoryDB) Get(key []byte) (value []byte, err error) {
+func (db *MapDB) Get(key []byte) (value []byte, err error) {
 	return db.data[string(key)], nil
 }
 
-func (db *MemoryDB) Has(key []byte) (ret bool, err error) {
+func (db *MapDB) Has(key []byte) (ret bool, err error) {
 	_, ok := db.data[string(key)]
 	return ok, nil
 }
 
-func (db *MemoryDB) Put(key, value []byte) error {
+func (db *MapDB) Put(key, value []byte) error {
 	db.data[string(key)] = value
 	return nil
 }
 
-func (db *MemoryDB) Delete(key []byte) error {
+func (db *MapDB) Delete(key []byte) error {
 	delete(db.data, string(key))
 	return nil
 }
 
-func (db *MemoryDB) RangeScan(start, limit []byte) (Iterator, error) {
+func (db *MapDB) RangeScan(start, limit []byte) (Iterator, error) {
 	startKey := string(start)
 	limitKey := string(limit)
 
@@ -108,8 +107,8 @@ func (db *MemoryDB) RangeScan(start, limit []byte) (Iterator, error) {
 	return iterator, nil
 }
 
-func NewMemoryDB() MemoryDB {
-	return MemoryDB{
+func NewMapDB() MapDB {
+	return MapDB{
 		data: make(map[string][]byte),
 	}
 }

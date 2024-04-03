@@ -5,20 +5,20 @@ import (
 	"testing"
 )
 
-func BenchmarkSkipListDBPut(b *testing.B) {
-	db := NewSkipListDB()
+func BenchmarkArrDBPut(b *testing.B) {
+	db := NewArrDB()
 	for i := 0; i < b.N; i++ {
 		for j := 0; j < MAX_ITEMS; j++ {
 			key := []byte(String(5) + fmt.Sprint(j))
 			val := []byte("item" + fmt.Sprint(j))
 			db.Put(key, val)
 		}
-		db = NewSkipListDB()
+		db = NewArrDB()
 	}
 }
 
-func BenchmarkSkipListDBGetMiddle(b *testing.B) {
-	db := NewSkipListDB()
+func BenchmarkArrDBGetMiddle(b *testing.B) {
+	db := NewArrDB()
 	for j := 0; j < MAX_ITEMS; j++ {
 		key := []byte("key" + fmt.Sprint(j))
 		val := []byte("item" + fmt.Sprint(j))
@@ -30,8 +30,8 @@ func BenchmarkSkipListDBGetMiddle(b *testing.B) {
 	}
 }
 
-func BenchmarkSkipListDBPutGet(b *testing.B) {
-	db := NewSkipListDB()
+func BenchmarkArrDBPutGet(b *testing.B) {
+	db := NewArrDB()
 	for i := 0; i < b.N; i++ {
 		for j := 0; j < MAX_ITEMS; j++ {
 			key := []byte(String(5) + fmt.Sprint(j))
@@ -39,6 +39,6 @@ func BenchmarkSkipListDBPutGet(b *testing.B) {
 			db.Put(key, val)
 			db.Get(key)
 		}
-		db = NewSkipListDB()
+		db = NewArrDB()
 	}
 }

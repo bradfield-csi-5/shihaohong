@@ -8,31 +8,46 @@ import (
 // To run, `go test -bench=.`
 const MAX_ITEMS = 10000
 
-func BenchmarkMemoryDBPut(b *testing.B) {
-	db := NewMemoryDB()
-	for i := 0; i < MAX_ITEMS; i++ {
-		key := []byte("key" + fmt.Sprint(i))
-		val := []byte("item" + fmt.Sprint(i))
-		db.Put(key, val)
+func BenchmarkMapDBPut(b *testing.B) {
+	db := NewMapDB()
+	for i := 0; i < b.N; i++ {
+		for j := 0; j < MAX_ITEMS; j++ {
+			key := []byte(String(5) + fmt.Sprint(j))
+			val := []byte("item" + fmt.Sprint(j))
+			db.Put(key, val)
+		}
+		db = NewMapDB()
 	}
 }
 
-func BenchmarkMemoryDBGet(b *testing.B) {
-	db := NewMemoryDB()
-	for i := 0; i < MAX_ITEMS; i++ {
-		key := []byte("key" + fmt.Sprint(i))
-		val := []byte("item" + fmt.Sprint(i))
+func BenchmarkMapDBGetMiddle(b *testing.B) {
+	db := NewMapDB()
+	for j := 0; j < MAX_ITEMS; j++ {
+		key := []byte("key" + fmt.Sprint(j))
+		val := []byte("item" + fmt.Sprint(j))
 		db.Put(key, val)
 	}
 	b.ResetTimer()
-	for i := 0; i < MAX_ITEMS; i++ {
-		key := []byte("key" + fmt.Sprint(i))
-		db.Get(key)
+	for i := 0; i < b.N; i++ {
+		db.Get([]byte("key" + fmt.Sprint(MAX_ITEMS/2)))
 	}
 }
 
-func BenchmarkMemoryDBDelete(b *testing.B) {
-	db := NewMemoryDB()
+func BenchmarkMapDBPutGet(b *testing.B) {
+	db := NewMapDB()
+	for i := 0; i < b.N; i++ {
+		for j := 0; j < MAX_ITEMS; j++ {
+			key := []byte(String(5) + fmt.Sprint(j))
+			val := []byte("item" + fmt.Sprint(j))
+			db.Put(key, val)
+			db.Get(key)
+		}
+		db = NewMapDB()
+	}
+}
+
+func BenchmarkMapDBDelete(b *testing.B) {
+	db := NewMapDB()
 	for i := 0; i < MAX_ITEMS; i++ {
 		key := []byte("key" + fmt.Sprint(i))
 		val := []byte("item" + fmt.Sprint(i))
@@ -45,13 +60,13 @@ func BenchmarkMemoryDBDelete(b *testing.B) {
 	}
 }
 
-func BenchmarkMemoryDBRangeScan(b *testing.B) {
+func BenchmarkMapDBRangeScan(b *testing.B) {
 	alphabet := []string{}
 	for i := 'A'; i <= 'Z'; i++ {
 		alphabet = append(alphabet, string(i))
 	}
 
-	db := NewMemoryDB()
+	db := NewMapDB()
 	for i := 0; i < len(alphabet); i++ {
 		for j := 0; j < 100; j++ {
 			key := []byte(alphabet[i] + fmt.Sprint(j))
