@@ -6,7 +6,7 @@ import (
 )
 
 // To run, `go test -bench=.`
-const MAX_ITEMS = 100000
+const MAX_ITEMS = 10000
 
 func BenchmarkMemoryDBPut(b *testing.B) {
 	db := NewMemoryDB()
