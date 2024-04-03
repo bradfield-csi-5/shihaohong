@@ -107,17 +107,17 @@ func (db *SkipListDB) Delete(key []byte) error {
 	return nil
 }
 
-// Use to seed the skip list
+// Use to seed the skip list, for testing only since its assumed that
+// the passed in values are sorted by key
 func (db *SkipListDB) InsertToTail(node *Node) error {
-	for lvl := node.level; lvl >= 0; lvl-- {
-		currNode := db.root
+	currNode := db.root
+	for lvl := maxLevel - 1; lvl >= 0; lvl-- {
 		// assume nil key means nil node
-		for currNode.next[lvl].key != nil {
+		for !currNode.next[lvl].isLastNode {
 			currNode = currNode.next[lvl]
 		}
-		nilNode := currNode.next[lvl]
+		node.next[lvl] = currNode.next[lvl]
 		currNode.next[lvl] = node
-		node.next[lvl] = nilNode
 	}
 	return nil
 }

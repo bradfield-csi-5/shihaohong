@@ -5,79 +5,20 @@ import "fmt"
 func main() {
 	db := NewSkipListDB()
 
-	newNode := &Node{
-		key:   []byte("key1"),
-		value: []byte("item1"),
-		level: 0,
-	}
-	db.InsertToTail(newNode)
+	db.Put([]byte("chris"), []byte("chris' item"))
+	db.Put([]byte("shi hao"), []byte("shi hao's item"))
+	db.Put([]byte("ben"), []byte("ben's item"))
+	db.Put([]byte("luke"), []byte("luke's item"))
 
-	// check root and subsequent
-	fmt.Println("first node")
-	fmt.Println(string(db.root.next[0].key))
-	fmt.Println(string(db.root.next[0].value))
-	fmt.Println(db.root.next[0].level)
-
-	newNode = &Node{
-		key:   []byte("key2"),
-		value: []byte("item2"),
-		level: 2,
-	}
-	db.InsertToTail(newNode)
-	fmt.Println("second node")
-	fmt.Println(string(db.root.next[0].next[0].key))
-	fmt.Println(string(db.root.next[0].next[0].value))
-	fmt.Println(db.root.next[0].next[0].level)
-
-	fmt.Println(string(db.root.next[1].key))
-	fmt.Println(string(db.root.next[1].value))
-	fmt.Println(db.root.next[1].level)
-
-	fmt.Println(string(db.root.next[2].key))
-	fmt.Println(string(db.root.next[2].value))
-	fmt.Println(db.root.next[2].level)
-
-	newNode = &Node{
-		key:   []byte("key4"),
-		value: []byte("item4"),
-		level: 1,
-	}
-	db.InsertToTail(newNode)
-
-	fmt.Println("third node")
-	fmt.Println(string(db.root.next[0].next[0].next[0].key))
-	fmt.Println(string(db.root.next[0].next[0].next[0].value))
-	fmt.Println(db.root.next[0].next[0].next[0].level)
-
-	fmt.Println(string(db.root.next[1].next[1].key))
-	fmt.Println(string(db.root.next[1].next[1].value))
-	fmt.Println(db.root.next[1].next[1].level)
-
-	db.Put([]byte("key3"), []byte("newValue"))
-
-	fmt.Println("new third node")
-	fmt.Println(string(db.root.next[0].next[0].next[0].key))
-	fmt.Println(string(db.root.next[0].next[0].next[0].value))
-	fmt.Println(db.root.next[0].next[0].next[0].level)
-
-	fmt.Println(string(db.root.next[1].next[1].key))
-	fmt.Println(string(db.root.next[1].next[1].value))
-	fmt.Println(db.root.next[1].next[1].level)
-
-	fmt.Println("new fourth node")
-	fmt.Println(string(db.root.next[0].next[0].next[0].next[0].key))
-	fmt.Println(string(db.root.next[0].next[0].next[0].next[0].value))
-	fmt.Println(db.root.next[0].next[0].next[0].next[0].level)
-
-	res, _ := db.Get([]byte("key1"))
+	fmt.Println("nodes")
+	res, _ := db.Get([]byte("luke"))
 	fmt.Println(string(res))
-	res, _ = db.Get([]byte("key2"))
+	res, _ = db.Get([]byte("ben"))
 	fmt.Println(string(res))
-	res, _ = db.Get([]byte("key3"))
+	res, _ = db.Get([]byte("chris"))
 	fmt.Println(string(res))
-	res, _ = db.Get([]byte("key4"))
+	res, _ = db.Get([]byte("shi hao"))
 	fmt.Println(string(res))
-
 }
 
 // func main() {
