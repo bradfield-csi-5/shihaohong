@@ -69,6 +69,15 @@ func main() {
 	fmt.Println(string(db.root.next[0].next[0].next[0].next[0].value))
 	fmt.Println(db.root.next[0].next[0].next[0].next[0].level)
 
+	res, _ := db.Get([]byte("key1"))
+	fmt.Println(string(res))
+	res, _ = db.Get([]byte("key2"))
+	fmt.Println(string(res))
+	res, _ = db.Get([]byte("key3"))
+	fmt.Println(string(res))
+	res, _ = db.Get([]byte("key4"))
+	fmt.Println(string(res))
+
 }
 
 // func main() {

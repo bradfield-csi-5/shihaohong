@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"math/rand"
 )
 
@@ -46,11 +47,28 @@ func NewSkipListDB() SkipListDB {
 }
 
 func (db *SkipListDB) Get(key []byte) (value []byte, err error) {
-	return nil, nil
+	currNode := db.root
+
+	for i := maxLevel - 1; i >= 0; i-- {
+		for !currNode.next[i].isLastNode && bytes.Compare(currNode.next[i].key, key) < 0 {
+			currNode = currNode.next[i]
+		}
+	}
+
+	currNode = currNode.next[0]
+	if bytes.Equal(currNode.key, key) {
+		return currNode.value, nil
+	}
+
+	return nil, errors.New("search key not found")
 }
 
 func (db *SkipListDB) Has(key []byte) (ret bool, err error) {
-	return true, nil
+	_, err = db.Get(key)
+	if err != nil {
+		return true, nil
+	}
+	return false, errors.New("search key not found")
 }
 
 func (db *SkipListDB) Put(key, value []byte) error {
