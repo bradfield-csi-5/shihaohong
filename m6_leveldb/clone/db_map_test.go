@@ -6,7 +6,7 @@ import (
 )
 
 // To run, `go test -bench=.`
-const MAX_ITEMS = 10000
+const MAX_ITEMS = 5000
 
 func BenchmarkMapDBPut(b *testing.B) {
 	db := NewMapDB()
@@ -14,7 +14,10 @@ func BenchmarkMapDBPut(b *testing.B) {
 		for j := 0; j < MAX_ITEMS; j++ {
 			key := []byte(String(5) + fmt.Sprint(j))
 			val := []byte("item" + fmt.Sprint(j))
-			db.Put(key, val)
+			err := db.Put(key, val)
+			if err != nil {
+				panic(err)
+			}
 		}
 		db = NewMapDB()
 	}
@@ -46,16 +49,19 @@ func BenchmarkMapDBPutGet(b *testing.B) {
 	}
 }
 
-func BenchmarkMapDBDelete(b *testing.B) {
+func BenchmarkMapDBPutDelete(b *testing.B) {
 	db := NewMapDB()
 	for i := 0; i < MAX_ITEMS; i++ {
-		key := []byte("key" + fmt.Sprint(i))
+		key := []byte(String(5) + fmt.Sprint(i))
 		val := []byte("item" + fmt.Sprint(i))
 		db.Put(key, val)
 	}
 	b.ResetTimer()
 	for i := 0; i < MAX_ITEMS; i++ {
-		key := []byte("key" + fmt.Sprint(i))
+		key := []byte(String(5) + fmt.Sprint(i))
+		val := []byte(String(5) + fmt.Sprint(i))
+
+		db.Put(key, val)
 		db.Delete(key)
 	}
 }

@@ -8,7 +8,7 @@ import (
 
 // probability constant for when to increment the level when determining random level
 const p = 0.25
-const maxLevel = 16
+const maxLevel = 5
 
 type Node struct {
 	key   []byte
@@ -104,6 +104,27 @@ func (db *SkipListDB) Put(key, value []byte) error {
 }
 
 func (db *SkipListDB) Delete(key []byte) error {
+	var update [maxLevel]*Node
+	currNode := db.root
+
+	for i := maxLevel - 1; i >= 0; i-- {
+		for !currNode.next[i].isLastNode && bytes.Compare(currNode.next[i].key, key) < 0 {
+			currNode = currNode.next[i]
+		}
+		update[i] = currNode
+	}
+	currNode = currNode.next[0]
+
+	if !bytes.Equal(currNode.key, key) {
+		return errors.New("search key not found")
+	}
+
+	for i := 0; i < maxLevel; i++ {
+		if update[i].next[i] != currNode {
+			break
+		}
+		update[i].next[i] = currNode.next[i]
+	}
 	return nil
 }
 

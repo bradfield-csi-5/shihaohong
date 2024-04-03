@@ -5,8 +5,8 @@ import (
 	"testing"
 )
 
-func BenchmarkSkipListDBPut(b *testing.B) {
-	db := NewSkipListDB()
+func BenchmarkSliceDBPut(b *testing.B) {
+	db := NewSliceDB()
 	for i := 0; i < b.N; i++ {
 		for j := 0; j < MAX_ITEMS; j++ {
 			key := []byte(String(5) + fmt.Sprint(j))
@@ -16,15 +16,15 @@ func BenchmarkSkipListDBPut(b *testing.B) {
 				panic(err)
 			}
 		}
-		db = NewSkipListDB()
+		db = NewSliceDB()
 	}
 }
 
-func BenchmarkSkipListDBGetMiddle(b *testing.B) {
-	db := NewSkipListDB()
-	for j := 0; j < MAX_ITEMS; j++ {
-		key := []byte("key" + fmt.Sprint(j))
-		val := []byte("item" + fmt.Sprint(j))
+func BenchmarkSliceDBGetMiddle(b *testing.B) {
+	db := NewSliceDB()
+	for i := 0; i < MAX_ITEMS; i++ {
+		key := []byte("key" + fmt.Sprint(i))
+		val := []byte("item" + fmt.Sprint(i))
 		err := db.Put(key, val)
 		if err != nil {
 			panic(err)
@@ -39,8 +39,8 @@ func BenchmarkSkipListDBGetMiddle(b *testing.B) {
 	}
 }
 
-func BenchmarkSkipListDBPutGet(b *testing.B) {
-	db := NewSkipListDB()
+func BenchmarkSliceDBPutGet(b *testing.B) {
+	db := NewSliceDB()
 	for i := 0; i < b.N; i++ {
 		for j := 0; j < MAX_ITEMS; j++ {
 			key := []byte(String(5) + fmt.Sprint(j))
@@ -54,12 +54,12 @@ func BenchmarkSkipListDBPutGet(b *testing.B) {
 				panic(err)
 			}
 		}
-		db = NewSkipListDB()
+		db = NewSliceDB()
 	}
 }
 
-func BenchmarkSkipListDBPutDelete(b *testing.B) {
-	db := NewSkipListDB()
+func BenchmarkSliceDBPutDelete(b *testing.B) {
+	db := NewSliceDB()
 	for i := 0; i < MAX_ITEMS; i++ {
 		key := []byte(String(5) + fmt.Sprint(i))
 		val := []byte("item" + fmt.Sprint(i))
