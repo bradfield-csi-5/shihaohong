@@ -64,7 +64,15 @@ func (db *SliceDB) Put(key, value []byte) error {
 }
 
 func (db *SliceDB) Delete(key []byte) error {
-	return nil
+	for i := 0; i < db.len; i++ {
+		res := bytes.Compare(db.data[i].key, key)
+		if res == 0 {
+			db.data = append(db.data[:i], db.data[i+1:]...)
+			db.len--
+			return nil
+		}
+	}
+	return errors.New("search key not found")
 }
 
 func (db *SliceDB) RangeScan(start, limit []byte) (Iterator, error) {
