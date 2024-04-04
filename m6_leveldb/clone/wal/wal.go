@@ -1,6 +1,8 @@
 package wal
 
 import (
+	"errors"
+	"io"
 	"os"
 )
 
@@ -38,11 +40,11 @@ func (wal *Log) appendToLog(operator byte, key, value []byte) error {
 	defer f.Close()
 
 	entry := Entry{
-		operator:    operator,
-		key:         key,
-		keyLength:   byte(len(key)),
-		value:       value,
-		valueLength: byte(len(value)),
+		operator: operator,
+		key:      key,
+		keyLen:   byte(len(key)),
+		value:    value,
+		valueLen: byte(len(value)),
 	}
 	data := entry.encode()
 	_, err = f.Write(data)
@@ -59,33 +61,80 @@ func NewLog(path string) Log {
 	}
 }
 
-func (wal *Log) ReadFromLog() ([]byte, error) {
+func (wal *Log) Read() ([]Entry, error) {
+	res := make([]Entry, 0)
 
-	// read operator
-	// read key
-	// read value
-	//
+	f, err := os.Open(wal.path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
 
-	return nil, nil
+	for {
+		opSlice := make([]byte, 1)
+		_, err := f.Read(opSlice)
+		// special err check here to check if end of WAL is reached
+		if err != nil && !errors.Is(err, io.EOF) {
+			return nil, err
+		} else if err != nil && errors.Is(err, io.EOF) {
+			return res, nil
+		}
+
+		op := opSlice[0]
+		keyLenSlice := make([]byte, 1)
+		_, err = f.Read(keyLenSlice)
+		if err != nil {
+			return nil, err
+		}
+
+		keyLen := uint8(keyLenSlice[0])
+		keySlice := make([]byte, keyLen)
+		_, err = f.Read(keySlice)
+		if err != nil {
+			return nil, err
+		}
+		valLenSlice := make([]byte, 1)
+		_, err = f.Read(valLenSlice)
+		if err != nil {
+			return nil, err
+		}
+		valLen := uint8(valLenSlice[0])
+
+		valSlice := make([]byte, valLen)
+		_, err = f.Read(valSlice)
+		if err != nil {
+			return nil, err
+		}
+
+		entry := Entry{
+			operator: op,
+			keyLen:   keyLen,
+			key:      keySlice,
+			valueLen: valLen,
+			value:    valSlice,
+		}
+
+		res = append(res, entry)
+	}
 }
 
 // for now, a delete just stores val len 0, val empty
 type Entry struct {
-	operator    byte
-	keyLength   byte
-	key         []byte
-	valueLength byte
-	value       []byte
+	operator byte
+	keyLen   byte
+	key      []byte
+	valueLen byte
+	value    []byte
 }
 
 func (e *Entry) encode() []byte {
 	bs := []byte{
 		e.operator,
-		e.keyLength,
+		e.keyLen,
 	}
 
 	bs = append(bs, e.key...)
-	bs = append(bs, e.valueLength)
+	bs = append(bs, e.valueLen)
 	bs = append(bs, e.value...)
 	return bs
 }

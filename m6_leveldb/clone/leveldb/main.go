@@ -9,12 +9,19 @@ import (
 func main() {
 	log := wal.NewLog("wal.01")
 	log.ClearLog()
-	log.Put([]byte("item1"), []byte("value1"))
-	log.Put([]byte("item2"), []byte("value2"))
-	log.Put([]byte("item3"), []byte("value3"))
-	log.Put([]byte("item4"), []byte("value4"))
-	log.Put([]byte("item5"), []byte("value5"))
-	log.Delete([]byte("item2"))
+	log.Put([]byte("chris"), []byte("chris' item"))
+	log.Put([]byte("shi hao"), []byte("shi hao's item"))
+	log.Put([]byte("luke"), []byte("luke's item"))
+	log.Put([]byte("ben"), []byte("ben's item"))
+	log.Delete([]byte("shi hao"))
+	entries, err := log.Read()
+	if err != nil {
+		panic(err)
+	}
+
+	for i := 0; i < len(entries); i++ {
+		fmt.Println(entries[i])
+	}
 
 	mt := memtable.NewSkipListMT()
 
