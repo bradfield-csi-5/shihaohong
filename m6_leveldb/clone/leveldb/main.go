@@ -1,43 +1,36 @@
 package main
 
-import (
-	"fmt"
-	"github.com/shihaohong/leveldb_clone/memtable"
-	"github.com/shihaohong/leveldb_clone/wal"
-)
+import "fmt"
 
 func main() {
-	log := wal.NewLog("wal.01")
-	log.ClearLog()
-	log.Put([]byte("chris"), []byte("chris' item"))
-	log.Put([]byte("shi hao"), []byte("shi hao's item"))
-	log.Put([]byte("luke"), []byte("luke's item"))
-	log.Put([]byte("ben"), []byte("ben's item"))
-	log.Delete([]byte("shi hao"))
-	entries, err := log.Read()
-	if err != nil {
-		panic(err)
-	}
+	db := NewLevelDB("wal.01")
+	db.Init()
 
-	for i := 0; i < len(entries); i++ {
-		fmt.Println(entries[i])
-	}
+	// log.ClearLog()
+	// log.Put([]byte("chris"), []byte("chris' item"))
+	// log.Put([]byte("shi hao"), []byte("shi hao's item"))
+	// log.Put([]byte("luke"), []byte("luke's item"))
+	// log.Put([]byte("ben"), []byte("ben's item"))
+	// log.Delete([]byte("shi hao"))
+	// entries, err := log.Read()
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	mt := memtable.NewSkipListMT()
+	// for i := 0; i < len(entries); i++ {
+	// 	fmt.Println(entries[i])
+	// }
 
-	mt.Put([]byte("chris"), []byte("chris' item"))
-	mt.Put([]byte("shi hao"), []byte("shi hao's item"))
-	mt.Put([]byte("ben"), []byte("ben's item"))
-	mt.Put([]byte("luke"), []byte("luke's item"))
+	// mt := memtable.NewSkipListMT()
 
 	fmt.Println("nodes")
-	res, _ := mt.Get([]byte("luke"))
+	res, _ := db.Get([]byte("luke"))
 	fmt.Println(string(res))
-	res, _ = mt.Get([]byte("ben"))
+	res, _ = db.Get([]byte("ben"))
 	fmt.Println(string(res))
-	res, _ = mt.Get([]byte("chris"))
+	res, _ = db.Get([]byte("chris"))
 	fmt.Println(string(res))
-	res, _ = mt.Get([]byte("shi hao"))
+	res, _ = db.Get([]byte("shi hao"))
 	fmt.Println(string(res))
 }
 

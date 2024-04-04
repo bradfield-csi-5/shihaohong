@@ -79,8 +79,8 @@ func (db *SliceMemtable) RangeScan(start, limit []byte) (Iterator, error) {
 	return nil, nil
 }
 
-func NewSliceMT() SliceMemtable {
-	return SliceMemtable{
+func NewSliceMT() *SliceMemtable {
+	return &SliceMemtable{
 		data: []Entry{},
 	}
 }

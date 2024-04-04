@@ -29,7 +29,7 @@ type SkipListMemtable struct {
 	root *Node
 }
 
-func NewSkipListMT() SkipListMemtable {
+func NewSkipListMT() *SkipListMemtable {
 	// root node should have no value, need to start somewhere
 	rootNode := &Node{}
 
@@ -41,7 +41,7 @@ func NewSkipListMT() SkipListMemtable {
 		rootNode.next[lvl] = nilNode
 	}
 
-	return SkipListMemtable{
+	return &SkipListMemtable{
 		root: rootNode,
 	}
 }
@@ -126,6 +126,10 @@ func (db *SkipListMemtable) Delete(key []byte) error {
 		update[i].next[i] = currNode.next[i]
 	}
 	return nil
+}
+
+func (db *SkipListMemtable) RangeScan(start, limit []byte) (Iterator, error) {
+	return nil, nil
 }
 
 // Use to seed the skip list, for testing only since its assumed that

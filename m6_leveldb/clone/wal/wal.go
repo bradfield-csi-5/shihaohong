@@ -46,11 +46,11 @@ func (wal *Log) appendToLog(operator byte, key, value []byte) error {
 	defer f.Close()
 
 	entry := Entry{
-		operator: operator,
-		key:      key,
-		keyLen:   byte(len(key)),
-		value:    value,
-		valueLen: byte(len(value)),
+		Operator: operator,
+		Key:      key,
+		KeyLen:   byte(len(key)),
+		Value:    value,
+		ValueLen: byte(len(value)),
 	}
 	data := entry.encode()
 	_, err = f.Write(data)
@@ -113,11 +113,11 @@ func (wal *Log) Read() ([]Entry, error) {
 		}
 
 		entry := Entry{
-			operator: op,
-			keyLen:   keyLen,
-			key:      keySlice,
-			valueLen: valLen,
-			value:    valSlice,
+			Operator: op,
+			KeyLen:   keyLen,
+			Key:      keySlice,
+			ValueLen: valLen,
+			Value:    valSlice,
 		}
 
 		res = append(res, entry)
@@ -126,21 +126,21 @@ func (wal *Log) Read() ([]Entry, error) {
 
 // for now, a delete just stores val len 0, val empty
 type Entry struct {
-	operator byte
-	keyLen   byte
-	key      []byte
-	valueLen byte
-	value    []byte
+	Operator byte
+	KeyLen   byte
+	Key      []byte
+	ValueLen byte
+	Value    []byte
 }
 
 func (e *Entry) encode() []byte {
 	bs := []byte{
-		e.operator,
-		e.keyLen,
+		e.Operator,
+		e.KeyLen,
 	}
 
-	bs = append(bs, e.key...)
-	bs = append(bs, e.valueLen)
-	bs = append(bs, e.value...)
+	bs = append(bs, e.Key...)
+	bs = append(bs, e.ValueLen)
+	bs = append(bs, e.Value...)
 	return bs
 }
