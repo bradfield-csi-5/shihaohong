@@ -1,4 +1,4 @@
-package main
+package memtable
 
 import (
 	"bytes"
@@ -11,12 +11,12 @@ type Entry struct {
 }
 
 // Initial version, in-memory and no persistence
-type SliceDB struct {
+type SliceMemtable struct {
 	data []Entry
 	len  int
 }
 
-func (db *SliceDB) Get(key []byte) (value []byte, err error) {
+func (db *SliceMemtable) Get(key []byte) (value []byte, err error) {
 	for i := 0; i < db.len; i++ {
 		res := bytes.Compare(key, db.data[i].key)
 		if res == 0 {
@@ -28,7 +28,7 @@ func (db *SliceDB) Get(key []byte) (value []byte, err error) {
 	return nil, errors.New("search key not found")
 }
 
-func (db *SliceDB) Has(key []byte) (ret bool, err error) {
+func (db *SliceMemtable) Has(key []byte) (ret bool, err error) {
 	_, err = db.Get(key)
 	if err != nil {
 		return true, nil
@@ -36,7 +36,7 @@ func (db *SliceDB) Has(key []byte) (ret bool, err error) {
 	return false, err
 }
 
-func (db *SliceDB) Put(key, value []byte) error {
+func (db *SliceMemtable) Put(key, value []byte) error {
 	if db.len == 0 {
 		newEntry := Entry{key: key, value: value}
 		db.data = append(db.data, newEntry)
@@ -63,7 +63,7 @@ func (db *SliceDB) Put(key, value []byte) error {
 	return nil
 }
 
-func (db *SliceDB) Delete(key []byte) error {
+func (db *SliceMemtable) Delete(key []byte) error {
 	for i := 0; i < db.len; i++ {
 		res := bytes.Compare(db.data[i].key, key)
 		if res == 0 {
@@ -75,12 +75,12 @@ func (db *SliceDB) Delete(key []byte) error {
 	return errors.New("search key not found")
 }
 
-func (db *SliceDB) RangeScan(start, limit []byte) (Iterator, error) {
+func (db *SliceMemtable) RangeScan(start, limit []byte) (Iterator, error) {
 	return nil, nil
 }
 
-func NewSliceDB() SliceDB {
-	return SliceDB{
+func NewSliceMT() SliceMemtable {
+	return SliceMemtable{
 		data: []Entry{},
 	}
 }

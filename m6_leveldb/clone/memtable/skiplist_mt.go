@@ -1,4 +1,4 @@
-package main
+package memtable
 
 import (
 	"bytes"
@@ -25,11 +25,11 @@ type Node struct {
 	isLastNode bool
 }
 
-type SkipListDB struct {
+type SkipListMemtable struct {
 	root *Node
 }
 
-func NewSkipListDB() SkipListDB {
+func NewSkipListMT() SkipListMemtable {
 	// root node should have no value, need to start somewhere
 	rootNode := &Node{}
 
@@ -41,12 +41,12 @@ func NewSkipListDB() SkipListDB {
 		rootNode.next[lvl] = nilNode
 	}
 
-	return SkipListDB{
+	return SkipListMemtable{
 		root: rootNode,
 	}
 }
 
-func (db *SkipListDB) Get(key []byte) (value []byte, err error) {
+func (db *SkipListMemtable) Get(key []byte) (value []byte, err error) {
 	currNode := db.root
 
 	for i := maxLevel - 1; i >= 0; i-- {
@@ -63,7 +63,7 @@ func (db *SkipListDB) Get(key []byte) (value []byte, err error) {
 	return nil, errors.New("search key not found")
 }
 
-func (db *SkipListDB) Has(key []byte) (ret bool, err error) {
+func (db *SkipListMemtable) Has(key []byte) (ret bool, err error) {
 	_, err = db.Get(key)
 	if err != nil {
 		return true, nil
@@ -71,7 +71,7 @@ func (db *SkipListDB) Has(key []byte) (ret bool, err error) {
 	return false, errors.New("search key not found")
 }
 
-func (db *SkipListDB) Put(key, value []byte) error {
+func (db *SkipListMemtable) Put(key, value []byte) error {
 	var update [maxLevel]*Node
 	currNode := db.root
 
@@ -103,7 +103,7 @@ func (db *SkipListDB) Put(key, value []byte) error {
 	return nil
 }
 
-func (db *SkipListDB) Delete(key []byte) error {
+func (db *SkipListMemtable) Delete(key []byte) error {
 	var update [maxLevel]*Node
 	currNode := db.root
 
@@ -130,7 +130,7 @@ func (db *SkipListDB) Delete(key []byte) error {
 
 // Use to seed the skip list, for testing only since its assumed that
 // the passed in values are sorted by key
-func (db *SkipListDB) InsertToTail(node *Node) error {
+func (db *SkipListMemtable) InsertToTail(node *Node) error {
 	currNode := db.root
 	for lvl := maxLevel - 1; lvl >= 0; lvl-- {
 		// assume nil key means nil node

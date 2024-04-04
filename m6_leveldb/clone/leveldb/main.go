@@ -1,9 +1,12 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/shihaohong/leveldb_clone/memtable"
+)
 
 func main() {
-	db := NewSkipListDB()
+	db := memtable.NewSkipListMT()
 
 	db.Put([]byte("chris"), []byte("chris' item"))
 	db.Put([]byte("shi hao"), []byte("shi hao's item"))

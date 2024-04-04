@@ -1,19 +1,19 @@
-package main
+package memtable
 
 import (
 	"sort"
 )
 
-type DB interface {
+type Memtable interface {
 	// Get gets the value for the given key. It returns an error if the
-	// DB does not contain the key.
+	// mt does not contain the key.
 	Get(key []byte) (value []byte, err error)
 
-	// Has returns true if the DB contains the given key.
+	// Has returns true if the mt contains the given key.
 	Has(key []byte) (ret bool, err error)
 
 	// Put sets the value for the given key. It overwrites any previous value
-	// for that key; a DB is not a multi-map.
+	// for that key; a mt is not a multi-map.
 	Put(key, value []byte) error
 
 	// Delete deletes the value for the given key.
@@ -41,35 +41,35 @@ type Iterator interface {
 }
 
 // Initial version, in-memory and no persistence
-type MapDB struct {
+type MapMemtable struct {
 	data map[string][]byte
 }
 
-func (db *MapDB) Get(key []byte) (value []byte, err error) {
-	return db.data[string(key)], nil
+func (mt *MapMemtable) Get(key []byte) (value []byte, err error) {
+	return mt.data[string(key)], nil
 }
 
-func (db *MapDB) Has(key []byte) (ret bool, err error) {
-	_, ok := db.data[string(key)]
+func (mt *MapMemtable) Has(key []byte) (ret bool, err error) {
+	_, ok := mt.data[string(key)]
 	return ok, nil
 }
 
-func (db *MapDB) Put(key, value []byte) error {
-	db.data[string(key)] = value
+func (mt *MapMemtable) Put(key, value []byte) error {
+	mt.data[string(key)] = value
 	return nil
 }
 
-func (db *MapDB) Delete(key []byte) error {
-	delete(db.data, string(key))
+func (mt *MapMemtable) Delete(key []byte) error {
+	delete(mt.data, string(key))
 	return nil
 }
 
-func (db *MapDB) RangeScan(start, limit []byte) (Iterator, error) {
+func (mt *MapMemtable) RangeScan(start, limit []byte) (Iterator, error) {
 	startKey := string(start)
 	limitKey := string(limit)
 
 	keys := make([]string, 0)
-	for k := range db.data {
+	for k := range mt.data {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
@@ -90,7 +90,7 @@ func (db *MapDB) RangeScan(start, limit []byte) (Iterator, error) {
 		// append to iterator tuple list
 		tuple := Tuple{
 			key:   []byte(keys[k]),
-			value: db.data[keys[k]],
+			value: mt.data[keys[k]],
 		}
 		iterator.tuples = append(iterator.tuples, tuple)
 
@@ -107,8 +107,8 @@ func (db *MapDB) RangeScan(start, limit []byte) (Iterator, error) {
 	return iterator, nil
 }
 
-func NewMapDB() MapDB {
-	return MapDB{
+func NewMapMT() MapMemtable {
+	return MapMemtable{
 		data: make(map[string][]byte),
 	}
 }
