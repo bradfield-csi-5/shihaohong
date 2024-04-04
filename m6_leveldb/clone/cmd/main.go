@@ -1,9 +1,13 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/shihaohong/leveldb_clone/leveldb"
+)
 
 func main() {
-	db := NewLevelDB("wal.01")
+	db := leveldb.NewLevelDB("wal.01")
 	db.Init()
 
 	// log.ClearLog()
