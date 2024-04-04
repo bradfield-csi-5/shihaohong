@@ -23,12 +23,18 @@ func (wal *Log) ClearLog() error {
 }
 
 func (wal *Log) Put(key, value []byte) error {
-	wal.appendToLog(OP_PUT, key, value)
+	err := wal.appendToLog(OP_PUT, key, value)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 func (wal *Log) Delete(key []byte) error {
-	wal.appendToLog(OP_DELETE, key, nil)
+	err := wal.appendToLog(OP_DELETE, key, nil)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
