@@ -20,7 +20,17 @@ func (wal *Log) ClearLog() error {
 	return nil
 }
 
-func (wal *Log) AppendToLog(operator byte, key, value []byte) error {
+func (wal *Log) Put(key, value []byte) error {
+	wal.appendToLog(OP_PUT, key, value)
+	return nil
+}
+
+func (wal *Log) Delete(key []byte) error {
+	wal.appendToLog(OP_DELETE, key, nil)
+	return nil
+}
+
+func (wal *Log) appendToLog(operator byte, key, value []byte) error {
 	f, err := os.OpenFile(wal.path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
@@ -49,6 +59,17 @@ func NewLog(path string) Log {
 	}
 }
 
+func (wal *Log) ReadFromLog() ([]byte, error) {
+
+	// read operator
+	// read key
+	// read value
+	//
+
+	return nil, nil
+}
+
+// for now, a delete just stores val len 0, val empty
 type Entry struct {
 	operator    byte
 	keyLength   byte

@@ -9,12 +9,12 @@ import (
 func main() {
 	log := wal.NewLog("wal.01")
 	log.ClearLog()
-	log.AppendToLog(wal.OP_PUT, []byte("item1"), []byte("value1"))
-	log.AppendToLog(wal.OP_PUT, []byte("item2"), []byte("value2"))
-	log.AppendToLog(wal.OP_PUT, []byte("item3"), []byte("value3"))
-	log.AppendToLog(wal.OP_PUT, []byte("item4"), []byte("value4"))
-	log.AppendToLog(wal.OP_PUT, []byte("item5"), []byte("value5"))
-	log.AppendToLog(wal.OP_DELETE, []byte("item2"), []byte("value2"))
+	log.Put([]byte("item1"), []byte("value1"))
+	log.Put([]byte("item2"), []byte("value2"))
+	log.Put([]byte("item3"), []byte("value3"))
+	log.Put([]byte("item4"), []byte("value4"))
+	log.Put([]byte("item5"), []byte("value5"))
+	log.Delete([]byte("item2"))
 
 	mt := memtable.NewSkipListMT()
 
