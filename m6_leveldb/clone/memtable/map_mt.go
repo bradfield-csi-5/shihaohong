@@ -73,6 +73,14 @@ func (mt *MapMemtable) RangeScan(start, limit []byte) (iterator.Iterator, error)
 	return iterator, nil
 }
 
+func (mt *MapMemtable) GetAll() error {
+	return nil
+}
+
+func (mt *MapMemtable) Clear() error {
+	return nil
+}
+
 func NewMapMT() *MapMemtable {
 	return &MapMemtable{
 		data: make(map[string][]byte),

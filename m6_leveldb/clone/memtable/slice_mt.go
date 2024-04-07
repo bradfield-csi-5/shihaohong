@@ -4,25 +4,21 @@ import (
 	"bytes"
 	"errors"
 
+	"github.com/shihaohong/leveldb_clone/entry"
 	"github.com/shihaohong/leveldb_clone/iterator"
 )
 
-type Entry struct {
-	key   []byte
-	value []byte
-}
-
 // Initial version, in-memory and no persistence
 type SliceMemtable struct {
-	data []Entry
+	data []entry.Entry
 	len  int
 }
 
 func (db *SliceMemtable) Get(key []byte) (value []byte, err error) {
 	for i := 0; i < db.len; i++ {
-		res := bytes.Compare(key, db.data[i].key)
+		res := bytes.Compare(key, db.data[i].Key)
 		if res == 0 {
-			return db.data[i].value, nil
+			return db.data[i].Value, nil
 		} else if res > 0 {
 			return nil, errors.New("search key not found")
 		}
@@ -40,26 +36,26 @@ func (db *SliceMemtable) Has(key []byte) (ret bool, err error) {
 
 func (db *SliceMemtable) Put(key, value []byte) error {
 	if db.len == 0 {
-		newEntry := Entry{key: key, value: value}
+		newEntry := entry.Entry{Key: key, Value: value}
 		db.data = append(db.data, newEntry)
 		db.len++
 		return nil
 	}
 
 	for i := 0; i < db.len; i++ {
-		res := bytes.Compare(db.data[i].key, key)
+		res := bytes.Compare(db.data[i].Key, key)
 		if res == 0 {
-			db.data[i].value = value
+			db.data[i].Value = value
 			return nil
 		} else if res < 0 {
-			newEntry := Entry{key: key, value: value}
+			newEntry := entry.Entry{Key: key, Value: value}
 			db.data = append(db.data[:i+1], db.data[i:]...)
 			db.data[i] = newEntry
 			db.len++
 			return nil
 		}
 	}
-	newEntry := Entry{key: key, value: value}
+	newEntry := entry.Entry{Key: key, Value: value}
 	db.data = append(db.data, newEntry)
 	db.len++
 	return nil
@@ -67,7 +63,7 @@ func (db *SliceMemtable) Put(key, value []byte) error {
 
 func (db *SliceMemtable) Delete(key []byte) error {
 	for i := 0; i < db.len; i++ {
-		res := bytes.Compare(db.data[i].key, key)
+		res := bytes.Compare(db.data[i].Key, key)
 		if res == 0 {
 			db.data = append(db.data[:i], db.data[i+1:]...)
 			db.len--
@@ -77,12 +73,20 @@ func (db *SliceMemtable) Delete(key []byte) error {
 	return errors.New("search key not found")
 }
 
+func (mt *SliceMemtable) GetAll() error {
+	return nil
+}
+
+func (mt *SliceMemtable) Clear() error {
+	return nil
+}
+
 func (db *SliceMemtable) RangeScan(start, limit []byte) (iterator.Iterator, error) {
 	return nil, nil
 }
 
 func NewSliceMT() *SliceMemtable {
 	return &SliceMemtable{
-		data: []Entry{},
+		data: []entry.Entry{},
 	}
 }

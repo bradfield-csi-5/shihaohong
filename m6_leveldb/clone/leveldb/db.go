@@ -4,18 +4,28 @@ import (
 	"errors"
 
 	"github.com/shihaohong/leveldb_clone/memtable"
+	"github.com/shihaohong/leveldb_clone/sstable"
 	"github.com/shihaohong/leveldb_clone/wal"
 )
 
+/*
+TODOs:
+- db.Store: Merge existing sstable if it exists. Assume only one file
+- db.Get: check SSTable for result if not in Memtable
+- db.Put: call db.Store when byte estimate exceeds 1k
+*/
+
 type LevelDB struct {
-	wal wal.Log
-	mt  memtable.Memtable
+	wal     wal.Log
+	mt      memtable.Memtable
+	sstPath string
 }
 
-func NewLevelDB(path string) LevelDB {
+func NewLevelDB(walPath string, sstPath string) LevelDB {
 	return LevelDB{
-		wal: wal.NewLog(path),
-		mt:  memtable.NewSkipListMT(),
+		wal:     wal.NewLog(walPath),
+		mt:      memtable.NewSkipListMT(),
+		sstPath: sstPath,
 	}
 }
 
@@ -40,6 +50,10 @@ func (db *LevelDB) Init() error {
 
 func (db *LevelDB) ClearWAL() error {
 	return db.wal.Clear()
+}
+
+func (db *LevelDB) ClearMT() error {
+	return db.mt.Clear()
 }
 
 func (db *LevelDB) Get(key []byte) ([]byte, error) {
@@ -72,15 +86,25 @@ func (db *LevelDB) Delete(key []byte) error {
 	return nil
 }
 
-func (db *LevelDB) store() error {
+func (db *LevelDB) Store() error {
 	// jump through all values in mt
 	// for every value, create an sstable entry
+	vals, err := db.mt.GetAll()
+	if err != nil {
+		return err
+	}
 
 	// create sstable file
+	sst := sstable.NewSSTable(vals)
+	err = sst.WriteToDisk(db.sstPath)
+	if err != nil {
+		return err
+	}
 
 	// empty wal
-
 	// empty mt
+	db.wal.Clear()
+	db.mt.Clear()
 
 	return nil
 }

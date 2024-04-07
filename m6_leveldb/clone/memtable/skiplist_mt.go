@@ -5,6 +5,7 @@ import (
 	"errors"
 	"math/rand"
 
+	"github.com/shihaohong/leveldb_clone/entry"
 	"github.com/shihaohong/leveldb_clone/iterator"
 )
 
@@ -67,6 +68,19 @@ func (db *SkipListMemtable) Get(key []byte) (value []byte, err error) {
 	}
 
 	return nil, errors.New("search key not found")
+}
+
+func (db *SkipListMemtable) GetAll() (vals []entry.Entry, err error) {
+	currNode := db.root.next[0]
+	res := make([]entry.Entry, 0)
+	for ; !currNode.isLastNode; currNode = currNode.next[0] {
+		res = append(res, entry.Entry{
+			Key:   currNode.key,
+			Value: currNode.value,
+		})
+	}
+
+	return res, nil
 }
 
 func (db *SkipListMemtable) Has(key []byte) (ret bool, err error) {
@@ -171,6 +185,15 @@ func (db *SkipListMemtable) RangeScan(start, limit []byte) (iterator.Iterator, e
 	}
 
 	return iterator, nil
+}
+
+func (mt *SkipListMemtable) Clear() error {
+	nilNode := &Node{isLastNode: true}
+	for lvl := maxLevel - 1; lvl >= 0; lvl-- {
+		mt.root.next[lvl] = nilNode
+	}
+
+	return nil
 }
 
 // Use to seed the skip list, for testing only since its assumed that
