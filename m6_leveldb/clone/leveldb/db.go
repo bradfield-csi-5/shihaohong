@@ -15,7 +15,7 @@ type LevelDB struct {
 func NewLevelDB(path string) LevelDB {
 	return LevelDB{
 		wal: wal.NewLog(path),
-		mt:  memtable.NewMapMT(),
+		mt:  memtable.NewSkipListMT(),
 	}
 }
 
@@ -38,6 +38,10 @@ func (db *LevelDB) Init() error {
 	return nil
 }
 
+func (db *LevelDB) ClearWAL() error {
+	return db.wal.ClearLog()
+}
+
 func (db *LevelDB) Get(key []byte) ([]byte, error) {
 	return db.mt.Get(key)
 }
@@ -47,7 +51,36 @@ func (db *LevelDB) Put(key, value []byte) error {
 	if err != nil {
 		return err
 	}
-	db.mt.Put(key, value)
+	err = db.mt.Put(key, value)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (db *LevelDB) Delete(key []byte) error {
+	err := db.wal.Delete(key)
+	if err != nil {
+		return err
+	}
+	err = db.mt.Delete(key)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (db *LevelDB) store() error {
+	// jump through all values in mt
+	// for every value, create an sstable entry
+
+	// create sstable file
+
+	// empty wal
+
+	// empty mt
 
 	return nil
 }

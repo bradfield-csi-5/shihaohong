@@ -8,9 +8,9 @@ import (
 
 func main() {
 	db := leveldb.NewLevelDB("wal.01")
-	db.Init()
+	// db.Init()
 
-	// log.ClearLog()
+	db.ClearWAL()
 	// log.Put([]byte("chris"), []byte("chris' item"))
 	// log.Put([]byte("shi hao"), []byte("shi hao's item"))
 	// log.Put([]byte("luke"), []byte("luke's item"))
@@ -27,15 +27,26 @@ func main() {
 
 	// mt := memtable.NewSkipListMT()
 
-	fmt.Println("nodes")
-	res, _ := db.Get([]byte("luke"))
-	fmt.Println(string(res))
-	res, _ = db.Get([]byte("ben"))
-	fmt.Println(string(res))
-	res, _ = db.Get([]byte("chris"))
-	fmt.Println(string(res))
-	res, _ = db.Get([]byte("shi hao"))
-	fmt.Println(string(res))
+	// fmt.Println("nodes")
+	// res, _ := db.Get([]byte("luke"))
+	// fmt.Println(string(res))
+	// res, _ = db.Get([]byte("ben"))
+	// fmt.Println(string(res))
+	// res, _ = db.Get([]byte("chris"))
+	// fmt.Println(string(res))
+	// res, _ = db.Get([]byte("shi hao"))
+	// fmt.Println(string(res))
+
+	fmt.Println("put and delete step:")
+	db.Put([]byte("another key"), []byte("new val"))
+	db.Put([]byte("shihao key"), []byte("sh"))
+	db.Put([]byte("chris key"), []byte("ch"))
+	db.Put([]byte("luke key"), []byte("lu"))
+	db.Delete([]byte("another key"))
+	db.Delete([]byte("shihao key"))
+	db.Delete([]byte("chris key"))
+	db.Delete([]byte("luke key"))
+
 }
 
 // func main() {

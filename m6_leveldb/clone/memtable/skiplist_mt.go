@@ -3,6 +3,7 @@ package memtable
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"math/rand"
 
 	"github.com/shihaohong/leveldb_clone/iterator"
@@ -29,6 +30,10 @@ type Node struct {
 
 type SkipListMemtable struct {
 	root *Node
+
+	// rough estimate of how much space is consumed by keys
+	// and values in the skiplist
+	byteEstimate int
 }
 
 func NewSkipListMT() *SkipListMemtable {
@@ -101,7 +106,13 @@ func (db *SkipListMemtable) Put(key, value []byte) error {
 			newNode.next[i] = update[i].next[i]
 			update[i].next[i] = newNode
 		}
+		// only increment byte estimate if putting a new value
+		db.byteEstimate += len(key) + len(value)
+		fmt.Println("num bytes:")
+		fmt.Println(db.byteEstimate)
+
 	}
+
 	return nil
 }
 
@@ -127,6 +138,9 @@ func (db *SkipListMemtable) Delete(key []byte) error {
 		}
 		update[i].next[i] = currNode.next[i]
 	}
+	db.byteEstimate -= (len(key) + len(currNode.value))
+	fmt.Println("num bytes:")
+	fmt.Println(db.byteEstimate)
 	return nil
 }
 
