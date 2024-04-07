@@ -55,6 +55,19 @@ func main() {
 	fmt.Println(string(res))
 	res, _ = db.Get([]byte("luke key"))
 	fmt.Println(string(res))
+
+	db.Put([]byte("another key"), []byte("new val"))
+	db.Put([]byte("shihao key"), []byte("sh"))
+	db.Put([]byte("chris key"), []byte("ch"))
+	db.Put([]byte("luke key"), []byte("lu"))
+	res, _ = db.Get([]byte("another key"))
+	fmt.Println(string(res))
+	res, _ = db.Get([]byte("shihao key"))
+	fmt.Println(string(res))
+	res, _ = db.Get([]byte("chris key"))
+	fmt.Println(string(res))
+	res, _ = db.Get([]byte("luke key"))
+	fmt.Println(string(res))
 }
 
 // func main() {
