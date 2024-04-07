@@ -3,6 +3,8 @@ package memtable
 import (
 	"bytes"
 	"errors"
+
+	"github.com/shihaohong/leveldb_clone/iterator"
 )
 
 type Entry struct {
@@ -75,7 +77,7 @@ func (db *SliceMemtable) Delete(key []byte) error {
 	return errors.New("search key not found")
 }
 
-func (db *SliceMemtable) RangeScan(start, limit []byte) (Iterator, error) {
+func (db *SliceMemtable) RangeScan(start, limit []byte) (iterator.Iterator, error) {
 	return nil, nil
 }
 

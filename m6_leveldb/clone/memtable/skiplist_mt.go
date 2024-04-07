@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"errors"
 	"math/rand"
+
+	"github.com/shihaohong/leveldb_clone/iterator"
 )
 
 // probability constant for when to increment the level when determining random level
@@ -128,7 +130,7 @@ func (db *SkipListMemtable) Delete(key []byte) error {
 	return nil
 }
 
-func (db *SkipListMemtable) RangeScan(start, limit []byte) (Iterator, error) {
+func (db *SkipListMemtable) RangeScan(start, limit []byte) (iterator.Iterator, error) {
 	return nil, nil
 }
 

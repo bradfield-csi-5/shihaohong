@@ -2,6 +2,8 @@ package memtable
 
 import (
 	"sort"
+
+	"github.com/shihaohong/leveldb_clone/iterator"
 )
 
 // Initial version, in-memory and no persistence
@@ -28,7 +30,7 @@ func (mt *MapMemtable) Delete(key []byte) error {
 	return nil
 }
 
-func (mt *MapMemtable) RangeScan(start, limit []byte) (Iterator, error) {
+func (mt *MapMemtable) RangeScan(start, limit []byte) (iterator.Iterator, error) {
 	startKey := string(start)
 	limitKey := string(limit)
 
