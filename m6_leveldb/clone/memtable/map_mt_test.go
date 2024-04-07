@@ -75,8 +75,8 @@ func BenchmarkMapMemtableRangeScan(b *testing.B) {
 	mt := NewMapMT()
 	for i := 0; i < len(alphabet); i++ {
 		for j := 0; j < 100; j++ {
-			key := []byte(alphabet[i] + fmt.Sprint(j))
-			val := []byte("item" + alphabet[i] + fmt.Sprint(j))
+			key := []byte(alphabet[i] + fmt.Sprintf("%03d", j))
+			val := []byte("item" + alphabet[i] + fmt.Sprintf("%03d", j))
 			mt.Put(key, val)
 		}
 	}

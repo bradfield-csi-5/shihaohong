@@ -15,7 +15,7 @@ type Log struct {
 	path string
 }
 
-func (wal *Log) ClearLog() error {
+func (wal *Log) Clear() error {
 	if err := os.Truncate(wal.path, 0); err != nil {
 		return err
 	}

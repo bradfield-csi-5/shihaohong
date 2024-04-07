@@ -3,7 +3,6 @@ package memtable
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"math/rand"
 
 	"github.com/shihaohong/leveldb_clone/iterator"
@@ -108,9 +107,6 @@ func (db *SkipListMemtable) Put(key, value []byte) error {
 		}
 		// only increment byte estimate if putting a new value
 		db.byteEstimate += len(key) + len(value)
-		fmt.Println("num bytes:")
-		fmt.Println(db.byteEstimate)
-
 	}
 
 	return nil
@@ -139,13 +135,42 @@ func (db *SkipListMemtable) Delete(key []byte) error {
 		update[i].next[i] = currNode.next[i]
 	}
 	db.byteEstimate -= (len(key) + len(currNode.value))
-	fmt.Println("num bytes:")
-	fmt.Println(db.byteEstimate)
 	return nil
 }
 
 func (db *SkipListMemtable) RangeScan(start, limit []byte) (iterator.Iterator, error) {
-	return nil, nil
+	currNode := db.root
+
+	for i := maxLevel - 1; i >= 0; i-- {
+		for !currNode.next[i].isLastNode && bytes.Compare(currNode.next[i].key, start) < 0 {
+			currNode = currNode.next[i]
+		}
+	}
+
+	currNode = currNode.next[0]
+	iterator := NewIter()
+
+	// does not exist
+	if !bytes.Equal(currNode.key, start) {
+		return iterator, nil
+	}
+
+	for !currNode.next[0].isLastNode {
+		// append to iterator tuple list
+		tuple := Tuple{
+			key:   currNode.key,
+			value: currNode.value,
+		}
+		iterator.tuples = append(iterator.tuples, tuple)
+
+		// reached limit key, break out
+		if bytes.Compare(currNode.key, limit) > 0 {
+			break
+		}
+		currNode = currNode.next[0]
+	}
+
+	return iterator, nil
 }
 
 // Use to seed the skip list, for testing only since its assumed that

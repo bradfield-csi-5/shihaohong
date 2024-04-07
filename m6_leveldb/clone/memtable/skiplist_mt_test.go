@@ -83,3 +83,28 @@ func BenchmarkSkipListMTPutDelete(b *testing.B) {
 		}
 	}
 }
+
+func BenchmarkSkipListMTRangeScan(b *testing.B) {
+	alphabet := []string{}
+	for i := 'A'; i <= 'Z'; i++ {
+		alphabet = append(alphabet, string(i))
+	}
+
+	mt := NewSkipListMT()
+	for i := 0; i < len(alphabet); i++ {
+		for j := 0; j < 100; j++ {
+			key := []byte(alphabet[i] + fmt.Sprintf("%03d", j))
+			val := []byte("item" + alphabet[i] + fmt.Sprintf("%03d", j))
+			mt.Put(key, val)
+		}
+	}
+	b.ResetTimer()
+	iter, _ := mt.RangeScan([]byte("A050"), []byte("B050"))
+
+	// get all iterator values until exhausted
+	for iter.Next() {
+		// just to verify results of rangescan
+		// fmt.Println(string(iter.Key()))
+		// fmt.Println(string(iter.Value()))
+	}
+}

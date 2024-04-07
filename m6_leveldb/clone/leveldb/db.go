@@ -39,7 +39,7 @@ func (db *LevelDB) Init() error {
 }
 
 func (db *LevelDB) ClearWAL() error {
-	return db.wal.ClearLog()
+	return db.wal.Clear()
 }
 
 func (db *LevelDB) Get(key []byte) ([]byte, error) {
