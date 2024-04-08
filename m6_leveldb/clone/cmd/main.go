@@ -7,8 +7,8 @@ import (
 )
 
 func main() {
-	db := leveldb.NewLevelDB("wal.01", "sst.01")
-	db.Init()
+	db := leveldb.NewLevelDB("wal.01", "sst")
+	// db.Init()
 
 	// db.ClearWAL()
 	// log.Put([]byte("chris"), []byte("chris' item"))
