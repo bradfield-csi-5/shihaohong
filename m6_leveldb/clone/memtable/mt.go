@@ -20,4 +20,6 @@ type Memtable interface {
 
 	// Clears the in-memory data store
 	Clear() error
+
+	GetByteEstimate() int
 }

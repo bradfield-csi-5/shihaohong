@@ -1,6 +1,8 @@
 package main
 
 import (
+	// "fmt"
+
 	"fmt"
 
 	"github.com/shihaohong/leveldb_clone/leveldb"
@@ -8,7 +10,6 @@ import (
 
 func main() {
 	db := leveldb.NewLevelDB("wal.01", "sst")
-	// db.Init()
 
 	// db.ClearWAL()
 	// log.Put([]byte("chris"), []byte("chris' item"))
@@ -26,48 +27,70 @@ func main() {
 	// }
 
 	// mt := memtable.NewSkipListMT()
-	fmt.Println("put:")
-	db.Put([]byte("another key"), []byte("new val"))
-	db.Put([]byte("shihao key"), []byte("sh"))
-	db.Put([]byte("chris key"), []byte("ch"))
-	db.Put([]byte("luke key"), []byte("lu"))
+	// fmt.Println("put:")
+	// db.Put([]byte("another key"), []byte("new val"))
+	// db.Put([]byte("shihao key"), []byte("sh"))
+	// db.Put([]byte("chris key"), []byte("ch"))
+	// db.Put([]byte("luke key"), []byte("lu"))
 	// db.Delete([]byte("another key"))
 	// db.Delete([]byte("shihao key"))
 	// db.Delete([]byte("chris key"))
 	// db.Delete([]byte("luke key"))
 
-	fmt.Println("nodes")
-	res, _ := db.Get([]byte("another key"))
-	fmt.Println(string(res))
-	res, _ = db.Get([]byte("shihao key"))
-	fmt.Println(string(res))
-	res, _ = db.Get([]byte("chris key"))
-	fmt.Println(string(res))
-	res, _ = db.Get([]byte("luke key"))
-	fmt.Println(string(res))
-	db.Store()
-	fmt.Println("nodes")
-	res, _ = db.Get([]byte("another key"))
-	fmt.Println(string(res))
-	res, _ = db.Get([]byte("shihao key"))
-	fmt.Println(string(res))
-	res, _ = db.Get([]byte("chris key"))
-	fmt.Println(string(res))
-	res, _ = db.Get([]byte("luke key"))
-	fmt.Println(string(res))
+	// fmt.Println("get")
+	// res, _ := db.Get([]byte("another key"))
+	// fmt.Println(string(res))
+	// res, _ = db.Get([]byte("shihao key"))
+	// fmt.Println(string(res))
+	// res, _ = db.Get([]byte("chris key"))
+	// fmt.Println(string(res))
+	// res, _ = db.Get([]byte("luke key"))
+	// fmt.Println(string(res))
+	// db.Store()
+	// fmt.Println("nodes")
+	// res, _ = db.Get([]byte("another key"))
+	// fmt.Println(string(res))
+	// res, _ = db.Get([]byte("shihao key"))
+	// fmt.Println(string(res))
+	// res, _ = db.Get([]byte("chris key"))
+	// fmt.Println(string(res))
+	// res, _ = db.Get([]byte("luke key"))
+	// fmt.Println(string(res))
+	alphabet := []string{}
+	for i := 'A'; i <= 'Z'; i++ {
+		alphabet = append(alphabet, string(i))
+	}
 
-	db.Put([]byte("another key"), []byte("new val"))
-	db.Put([]byte("shihao key"), []byte("sh"))
-	db.Put([]byte("chris key"), []byte("ch"))
-	db.Put([]byte("luke key"), []byte("lu"))
-	res, _ = db.Get([]byte("another key"))
-	fmt.Println(string(res))
-	res, _ = db.Get([]byte("shihao key"))
-	fmt.Println(string(res))
-	res, _ = db.Get([]byte("chris key"))
-	fmt.Println(string(res))
-	res, _ = db.Get([]byte("luke key"))
-	fmt.Println(string(res))
+	for i := 0; i < len(alphabet); i++ {
+		for j := 0; j < 100; j++ {
+			key := []byte(alphabet[i] + fmt.Sprintf("%03d", j))
+			val := []byte("item" + alphabet[i] + fmt.Sprintf("%03d", j))
+			db.Put(key, val)
+		}
+	}
+
+	for i := 0; i < len(alphabet); i++ {
+		for j := 0; j < 100; j++ {
+			key := []byte(alphabet[i] + fmt.Sprintf("%03d", j))
+			res, err := db.Get(key)
+			if err != nil {
+				panic(err)
+			}
+			fmt.Println(string(res))
+		}
+	}
+	// db.Put([]byte("another key"), []byte("new val"))
+	// db.Put([]byte("shihao key"), []byte("sh"))
+	// db.Put([]byte("chris key"), []byte("ch"))
+	// db.Put([]byte("luke key"), []byte("lu"))
+	// res, _ = db.Get([]byte("another key"))
+	// fmt.Println(string(res))
+	// res, _ = db.Get([]byte("shihao key"))
+	// fmt.Println(string(res))
+	// res, _ = db.Get([]byte("chris key"))
+	// fmt.Println(string(res))
+	// res, _ = db.Get([]byte("luke key"))
+	// fmt.Println(string(res))
 }
 
 // func main() {

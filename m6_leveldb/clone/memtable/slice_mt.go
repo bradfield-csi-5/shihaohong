@@ -2,8 +2,8 @@ package memtable
 
 import (
 	"bytes"
-	"errors"
 
+	"github.com/shihaohong/leveldb_clone/consts"
 	"github.com/shihaohong/leveldb_clone/entry"
 	"github.com/shihaohong/leveldb_clone/iterator"
 )
@@ -16,14 +16,14 @@ type SliceMemtable struct {
 
 func (db *SliceMemtable) Get(key []byte) (value []byte, err error) {
 	for i := 0; i < db.len; i++ {
-		res := bytes.Compare(key, db.data[i].Key)
+		res := bytes.Compare(db.data[i].Key, key)
 		if res == 0 {
 			return db.data[i].Value, nil
-		} else if res > 0 {
-			return nil, errors.New("search key not found")
+		} else if res < 0 {
+			return nil, consts.ErrSearchKeyNotFound
 		}
 	}
-	return nil, errors.New("search key not found")
+	return nil, consts.ErrSearchKeyNotFound
 }
 
 func (db *SliceMemtable) Has(key []byte) (ret bool, err error) {
@@ -70,7 +70,7 @@ func (db *SliceMemtable) Delete(key []byte) error {
 			return nil
 		}
 	}
-	return errors.New("search key not found")
+	return consts.ErrSearchKeyNotFound
 }
 
 func (mt *SliceMemtable) GetAll() error {

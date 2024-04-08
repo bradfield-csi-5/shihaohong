@@ -2,9 +2,9 @@ package memtable
 
 import (
 	"bytes"
-	"errors"
 	"math/rand"
 
+	"github.com/shihaohong/leveldb_clone/consts"
 	"github.com/shihaohong/leveldb_clone/entry"
 	"github.com/shihaohong/leveldb_clone/iterator"
 )
@@ -33,7 +33,7 @@ type SkipListMemtable struct {
 
 	// rough estimate of how much space is consumed by keys
 	// and values in the skiplist
-	byteEstimate int
+	ByteEstimate int
 }
 
 func NewSkipListMT() *SkipListMemtable {
@@ -67,7 +67,7 @@ func (db *SkipListMemtable) Get(key []byte) (value []byte, err error) {
 		return currNode.value, nil
 	}
 
-	return nil, errors.New("search key not found")
+	return nil, consts.ErrSearchKeyNotFound
 }
 
 func (db *SkipListMemtable) GetAll() (vals []entry.Entry, err error) {
@@ -88,7 +88,7 @@ func (db *SkipListMemtable) Has(key []byte) (ret bool, err error) {
 	if err != nil {
 		return true, nil
 	}
-	return false, errors.New("search key not found")
+	return false, consts.ErrSearchKeyNotFound
 }
 
 func (db *SkipListMemtable) Put(key, value []byte) error {
@@ -120,7 +120,7 @@ func (db *SkipListMemtable) Put(key, value []byte) error {
 			update[i].next[i] = newNode
 		}
 		// only increment byte estimate if putting a new value
-		db.byteEstimate += len(key) + len(value)
+		db.ByteEstimate += len(key) + len(value)
 	}
 
 	return nil
@@ -139,7 +139,7 @@ func (db *SkipListMemtable) Delete(key []byte) error {
 	currNode = currNode.next[0]
 
 	if !bytes.Equal(currNode.key, key) {
-		return errors.New("search key not found")
+		return consts.ErrSearchKeyNotFound
 	}
 
 	for i := 0; i < maxLevel; i++ {
@@ -148,7 +148,7 @@ func (db *SkipListMemtable) Delete(key []byte) error {
 		}
 		update[i].next[i] = currNode.next[i]
 	}
-	db.byteEstimate -= (len(key) + len(currNode.value))
+	db.ByteEstimate -= (len(key) + len(currNode.value))
 	return nil
 }
 
@@ -193,7 +193,13 @@ func (mt *SkipListMemtable) Clear() error {
 		mt.root.next[lvl] = nilNode
 	}
 
+	mt.ByteEstimate = 0
+
 	return nil
+}
+
+func (db *SkipListMemtable) GetByteEstimate() int {
+	return db.ByteEstimate
 }
 
 // Use to seed the skip list, for testing only since its assumed that
