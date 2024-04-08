@@ -66,10 +66,6 @@ func (mt *MapMemtable) RangeScan(start, limit []byte) (iterator.Iterator, error)
 		}
 	}
 
-	// if len(iterator.tuples) == 0 {
-	// 	return nil, errors.New("no tuples within the range found")
-	// }
-
 	return iterator, nil
 }
 
